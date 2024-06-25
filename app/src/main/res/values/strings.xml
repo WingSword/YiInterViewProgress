@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">面试助手</string>
+    <string name="list_no_data" translatable="false">无更多数据</string>
+</resources>
