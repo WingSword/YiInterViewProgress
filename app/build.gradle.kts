@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-
+    implementation(libs.androidx.material)
     implementation(libs.kotlinx.serialization.json.v170)
     // optional - Jetpack Compose integration
     implementation(libs.paging.compose)
