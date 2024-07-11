@@ -16,7 +16,9 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.YiProgress">
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.YiProgress"
+            tools:targetApi="tiramisu">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

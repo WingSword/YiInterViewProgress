@@ -1,12 +1,12 @@
 package com.walkS.yiprogress.ui.widget
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,56 +15,80 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.walkS.yiprogress.MainIntent
-import com.walkS.yiprogress.MainViewModel
+import com.walkS.yiprogress.R
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
+
+@Preview
+@Composable
+fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
+
+    if (isHomeScreenPage(currentRoute)) {
+        BottomNavigation {
+            Profile.entries.filter { isHomeScreenPage(it.route) }.forEach { label ->
+                BottomNavigationItem(
+                    icon = {
+                        Icon(
+                            painterResource(id = R.drawable.icon_interview),
+                            contentDescription = null,
+                            tint = if (currentRoute == label.route) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.secondary
+                            }
+                        )
+                    },
+                    label = { Text(label.title) },
+                    selected = currentRoute == label.route,
+                    onClick = {
+                        navi.navigate(label.route) {
+                            popUpTo(navi.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navi: NavController, content: @Composable () -> Unit) {
-    val model = viewModel(modelClass = MainViewModel::class.java)
-    val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route
-    val title = Profile.fromRoute(currentRoute)?.title ?: ""
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(title, modifier = Modifier.clickable {
-                        model.handleIntent(MainIntent.FetchDataList)
-                    })
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navi.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.List,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                },
-            )
+fun NavigationTopBar(navi: NavController, currentRoute: String?) {
+
+    CenterAlignedTopAppBar(
+        title = { Text(Profile.fromRoute(currentRoute)?.title ?: "") },
+        navigationIcon = {
+            IconButton(onClick = {
+                if (isHomeScreenPage(currentRoute)) {
+                    navi.navigate(Profile.DETAIL_INTERVIEW.route)
+                } else {
+                    navi.popBackStack()
+                }
+            }) {
+                Icon(
+                    imageVector = if (isHomeScreenPage(currentRoute)) Icons.AutoMirrored.Filled.List else Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Localized description"
+                )
+            }
         },
-    ) { innerPadding ->
-        //content
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            content()
-        }
-    }
+    )
 }
+
+
 @Composable
 fun IndeterminateLinearIndicator() {
     LinearProgressIndicator(

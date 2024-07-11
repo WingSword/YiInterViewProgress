@@ -1,5 +1,6 @@
 [versions]
 agp = "8.4.0"
+googleAccompanistPagerVersion = "0.28.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -20,7 +21,9 @@ uiToolingPreviewDesktop = "1.7.0-beta04"
 utilcode = "1.30.7"
 
 [libraries]
+accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "googleAccompanistPagerVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+com-google-accompanist-accompanist-pager2 = { module = "com.google.accompanist:accompanist-pager", version.ref = "googleAccompanistPagerVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

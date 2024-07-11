@@ -18,11 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blankj.utilcode.util.LogUtils
 import com.walkS.yiprogress.InterViewProgress
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.PullToRefreshScreen
+import com.walkS.yiprogress.entry.HOME
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.state.InterviewState
@@ -33,8 +33,11 @@ import com.walkS.yiprogress.ui.widget.IndeterminateLinearIndicator
 @Composable
 fun HomeScreen(viewModel: MainViewModel) {
     val stateList by viewModel.listState.collectAsState()
-
     PullToRefreshScreen(viewModel, stateList)
+}
+
+fun isHomeScreenPage(route: String?): Boolean {
+    return route?.startsWith(HOME) ?: true // 替换为你的二级页面的route
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -83,10 +86,9 @@ fun InterViewListItem(
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomeList(state: InterViewStateList,viewModel: MainViewModel, ) {
-    
+fun HomeInterviewList(state: InterViewStateList, viewModel: MainViewModel) {
+
     if (state.isFreshing) {
         IndeterminateLinearIndicator()
     } else if (state.list.isEmpty()) {
@@ -97,7 +99,7 @@ fun HomeList(state: InterViewStateList,viewModel: MainViewModel, ) {
             LazyColumn {
                 item {
                     InterViewListItem(item, onClick = {
-                        viewModel.navi?.navigate(route = Profile.INTERVIEW.route)
+                        viewModel.navi?.navigate(route = Profile.DETAIL_INTERVIEW.route)
                     })
                 }
 
@@ -105,5 +107,11 @@ fun HomeList(state: InterViewStateList,viewModel: MainViewModel, ) {
 
         }
     }
+}
+
+
+@Composable
+fun InterviewCard(viewModel: MainViewModel) {
+
 }
 

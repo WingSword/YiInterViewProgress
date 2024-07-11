@@ -1,12 +1,23 @@
 package com.walkS.yiprogress.entry
 
 
-enum class Profile(val route: String, val title: String) {
-    // 主页路由
-    HOME("profile/home", "主页"),
+const val HOME="profile/home"
+const val DETAIL="profile/detail"
+//详情
 
-    // 面试路由
-    INTERVIEW("profile/interview", "面试列表");
+enum class Profile(val route: String, val title: String) {
+
+    // 主页-面试列表
+    HOME_INTERVIEW_LIST_PAGE("$HOME/interview", "面试列表"),
+
+    // 主页-offer列表
+    HOME_OFFER_LIST_PAGE("${HOME}/offer", "offer列表"),
+
+    // 主页-我的
+    HOME_MINE_PAGE("${HOME}/mine", "我的"),
+
+    // 面试路由详情
+    DETAIL_INTERVIEW("${DETAIL}/interview", "面试详情");
 
     /**
      * 根据路由字符串解析对应的Profile枚举值。
@@ -16,6 +27,7 @@ enum class Profile(val route: String, val title: String) {
      * @return 对应的Profile枚举值，如果不存在则为null
      */
     companion object {
+
         fun fromRoute(route: String?): Profile? {
             return values().firstOrNull { it.route == route }
         }

@@ -53,8 +53,7 @@ dependencies {
     implementation(libs.utilcode)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+
     implementation(libs.androidx.material)
     implementation(libs.kotlinx.serialization.json.v170)
     // optional - Jetpack Compose integration
@@ -63,6 +62,11 @@ dependencies {
     implementation(libs.androidx.material3.v130beta)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.tooling.preview.desktop)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation (libs.com.google.accompanist.accompanist.pager2) // Pager
+    implementation (libs.accompanist.pager.indicators) // Pager Indicators
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
