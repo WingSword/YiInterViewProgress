@@ -49,12 +49,17 @@ class MainActivity : ComponentActivity() {
     private val viewmodel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             YiProgressTheme {
                 AppWithNavigation(viewModel = viewmodel)
             }
         }
+    }
+
+    fun initDataBase(){
+
     }
 }
 

@@ -1,6 +1,8 @@
 plugins {
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.kapt)
 }
 
 android {
@@ -67,6 +69,10 @@ dependencies {
     implementation (libs.com.google.accompanist.accompanist.pager2) // Pager
     implementation (libs.accompanist.pager.indicators) // Pager Indicators
 
+    implementation ("androidx.room:room-runtime:2.7.0-alpha05")
+    kapt ("androidx.room:room-compiler:2.7.0-alpha05")
+    implementation(libs.androidx.fragment.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,4 +80,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+kapt {
+    generateStubs = true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }

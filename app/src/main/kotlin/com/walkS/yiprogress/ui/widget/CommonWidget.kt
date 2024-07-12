@@ -37,7 +37,7 @@ fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
                 BottomNavigationItem(
                     icon = {
                         Icon(
-                            painterResource(id = R.drawable.icon_interview),
+                            painterResource(id = R.drawable.ic_launcher_foreground),
                             contentDescription = null,
                             tint = if (currentRoute == label.route) {
                                 MaterialTheme.colorScheme.primary

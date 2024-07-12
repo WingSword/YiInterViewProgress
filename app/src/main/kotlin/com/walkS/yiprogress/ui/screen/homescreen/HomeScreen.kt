@@ -63,7 +63,7 @@ fun InterViewListItem(
     ) {
         Row(modifier = Modifier.padding(bottom = 4.dp)) {
             Text(
-                text = state.title,
+                text = state.companyName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .padding(end = 12.dp)
@@ -95,7 +95,7 @@ fun HomeInterviewList(state: InterViewStateList, viewModel: MainViewModel) {
         BottomSheet()
     } else {
         for (item in state.list) {
-            LogUtils.d("item:${item.title}")
+            LogUtils.d("item:${item.companyName}")
             LazyColumn {
                 item {
                     InterViewListItem(item, onClick = {
