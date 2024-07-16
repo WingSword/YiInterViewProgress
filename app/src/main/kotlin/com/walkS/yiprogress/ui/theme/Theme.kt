@@ -1,37 +1,37 @@
 package com.walkS.yiprogress.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
+private val YiShape=Shapes(
+    small = ShapeDefaults.Small.copy(
+        CornerSize(8.dp)
+    ),
+    medium = ShapeDefaults.Medium.copy(
+        CornerSize(16.dp)
+    ),
+    large = ShapeDefaults.Large.copy(
+        CornerSize(24.dp)
+    ),
+    extraSmall = ShapeDefaults.ExtraSmall.copy(
+        CornerSize(4.dp)
+    ),
+    extraLarge = ShapeDefaults.ExtraLarge.copy(
+        CornerSize(32.dp)
+    ),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
 
-    background = Color(0xfff6f6f6),
-    surface = Color(0xffd6e6f2),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-
-)
 
 @Composable
 fun YiProgressTheme(
@@ -46,13 +46,14 @@ fun YiProgressTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> Colors.DarkColorScheme
+        else -> Colors.LightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
+        shapes = YiShape
     )
 }

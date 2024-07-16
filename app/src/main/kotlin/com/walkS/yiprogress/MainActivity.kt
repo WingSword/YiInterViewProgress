@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -96,7 +100,14 @@ fun AppWithNavigation(viewModel: MainViewModel) {
         },
         bottomBar = {
             NavigationBottomLayout(navi, currentRoute)
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { /* 点击事件 */ }) {
+                Icon(Icons.Filled.Add, contentDescription = "Add")
+            }
+        },
+
+
     ) { innerPadding ->
         //content
         Box(
@@ -122,31 +133,3 @@ fun AppWithNavigation(viewModel: MainViewModel) {
     }
 }
 
-
-@Composable
-fun InterViewProgress(state: InterviewState) {
-    val progressNum = state.progressNum
-    val progress = state.progress
-    if (progressNum < 1 || progress > progressNum) return
-    var sliderPosition by remember { mutableStateOf(progress) }
-
-    Column {
-        Text(
-            text = state.interviewStatus.toString(),
-            modifier = Modifier.align(Alignment.End),
-            style = MaterialTheme.typography.labelMedium
-        )
-        Slider(
-            value = sliderPosition.toFloat(),
-            onValueChange = { sliderPosition = it.toInt() },
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.secondary,
-                activeTrackColor = MaterialTheme.colorScheme.secondary,
-                inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            steps = progressNum,
-            valueRange = 0f..progressNum.toFloat(),
-            enabled = false
-        )
-    }
-}

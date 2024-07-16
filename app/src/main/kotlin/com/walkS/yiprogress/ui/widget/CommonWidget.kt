@@ -2,6 +2,7 @@ package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -32,7 +33,7 @@ import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
 fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
 
     if (isHomeScreenPage(currentRoute)) {
-        BottomNavigation {
+        BottomNavigation(backgroundColor =MaterialTheme.colorScheme.surface ) {
             Profile.entries.filter { isHomeScreenPage(it.route) }.forEach { label ->
                 BottomNavigationItem(
                     icon = {
@@ -43,7 +44,8 @@ fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
                                 MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.secondary
-                            }
+                            },
+                            modifier = Modifier.size(32.dp)
                         )
                     },
                     label = { Text(label.title) },
