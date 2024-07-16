@@ -1,5 +1,7 @@
 [versions]
+accompanistDrawablepainter = "0.35.0-alpha"
 agp = "8.4.0"
+androidxRoomRuntime = "2.7.0-alpha05"
 googleAccompanistPagerVersion = "0.28.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -21,10 +23,14 @@ uiToolingPreviewDesktop = "1.7.0-beta04"
 utilcode = "1.30.7"
 fragmentKtx = "1.8.1"
 kapt = "2.0.0"
+appcompatResources = "1.7.0"
 
 [libraries]
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "googleAccompanistPagerVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidxRoomRuntime" }
+androidx-room-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidxRoomRuntime" }
 com-google-accompanist-accompanist-pager2 = { module = "com.google.accompanist:accompanist-pager", version.ref = "googleAccompanistPagerVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -51,6 +57,7 @@ paging-common = { module = "androidx.paging:paging-common", version.ref = "pagin
 androidx-ui-tooling-preview-desktop = { group = "androidx.compose.ui", name = "ui-tooling-preview-desktop", version.ref = "uiToolingPreviewDesktop" }
 utilcode = { module = "com.blankj:utilcode", version.ref = "utilcode" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
+androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

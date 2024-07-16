@@ -1,20 +1,22 @@
 package com.walkS.yiprogress.entry
 
+import com.walkS.yiprogress.R
 
-const val HOME="profile/home"
-const val DETAIL="profile/detail"
+
+const val HOME = "profile/home"
+const val DETAIL = "profile/detail"
 //详情
 
-enum class Profile(val route: String, val title: String) {
+enum class Profile(val route: String, val title: String, val iconRes: Int = -1) {
 
     // 主页-面试列表
-    HOME_INTERVIEW_LIST_PAGE("$HOME/interview", "面试列表"),
+    HOME_INTERVIEW_LIST_PAGE("$HOME/interview", "面试列表", R.drawable.icon_interview),
 
     // 主页-offer列表
-    HOME_OFFER_LIST_PAGE("${HOME}/offer", "offer列表"),
+    HOME_OFFER_LIST_PAGE("${HOME}/offer", "offer列表", R.drawable.icon_offer),
 
     // 主页-我的
-    HOME_MINE_PAGE("${HOME}/mine", "我的"),
+    HOME_MINE_PAGE("${HOME}/mine", "我的", R.drawable.icon_user),
 
     // 面试路由详情
     DETAIL_INTERVIEW("${DETAIL}/interview", "面试详情");

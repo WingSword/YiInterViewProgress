@@ -68,9 +68,10 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation (libs.com.google.accompanist.accompanist.pager2) // Pager
     implementation (libs.accompanist.pager.indicators) // Pager Indicators
-
-    implementation ("androidx.room:room-runtime:2.7.0-alpha05")
-    kapt ("androidx.room:room-compiler:2.7.0-alpha05")
+    implementation(libs.accompanist.drawablepainter)
+    implementation (libs.androidx.room.room.runtime)
+    implementation(libs.androidx.appcompat.resources)
+    kapt (libs.androidx.room.compiler)
     implementation(libs.androidx.fragment.ktx)
 
     testImplementation(libs.junit)
