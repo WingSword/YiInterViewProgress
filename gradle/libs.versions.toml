@@ -24,6 +24,8 @@ utilcode = "1.30.7"
 fragmentKtx = "1.8.1"
 kapt = "2.0.0"
 appcompatResources = "1.7.0"
+material3WindowSizeClassDesktop = "1.2.1"
+material3WindowSizeClassAndroid = "1.2.1"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }

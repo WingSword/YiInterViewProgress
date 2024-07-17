@@ -10,13 +10,13 @@ const val DETAIL = "profile/detail"
 enum class Profile(val route: String, val title: String, val iconRes: Int = -1) {
 
     // 主页-面试列表
-    HOME_INTERVIEW_LIST_PAGE("$HOME/interview", "面试列表", R.drawable.icon_interview),
+    HOME_INTERVIEW_LIST_PAGE("$HOME/interview", "面试列表", R.drawable.icon_interview_normal),
 
     // 主页-offer列表
-    HOME_OFFER_LIST_PAGE("${HOME}/offer", "offer列表", R.drawable.icon_offer),
+    HOME_OFFER_LIST_PAGE("${HOME}/offer", "offer列表", R.drawable.icon_offer_normal),
 
     // 主页-我的
-    HOME_MINE_PAGE("${HOME}/mine", "我的", R.drawable.icon_user),
+    HOME_MINE_PAGE("${HOME}/mine", "我的", R.drawable.icon_user_selected),
 
     // 面试路由详情
     DETAIL_INTERVIEW("${DETAIL}/interview", "面试详情");

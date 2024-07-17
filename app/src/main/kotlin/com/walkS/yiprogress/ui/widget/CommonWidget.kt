@@ -1,17 +1,17 @@
 package com.walkS.yiprogress.ui.widget
 
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.BottomSheetState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.rememberDrawerState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,36 +19,43 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getDrawable
 import androidx.navigation.NavController
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.walkS.yiprogress.R
+import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.intent.BottomSheetIntent
+import com.walkS.yiprogress.ui.screen.homescreen.AddInterView
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
-import com.walkS.yiprogress.ui.theme.ChineseColor
 
 @Preview
 @Composable
 fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
-
     if (isHomeScreenPage(currentRoute)) {
-        BottomNavigation(backgroundColor = MaterialTheme.colorScheme.surface) {
+        NavigationBar(
+
+        ) {
             Profile.entries.filter { isHomeScreenPage(it.route) }.forEach { label ->
-                val drawable = AppCompatResources.getDrawable(LocalContext.current, label.iconRes)
-                BottomNavigationItem(
+                NavigationBarItem(
                     icon = {
                         Icon(
-                            painter = rememberDrawablePainter(drawable = drawable),
+                            painter = painterResource(label.iconRes),
                             contentDescription = null,
                             modifier = Modifier.size(32.dp)
                         )
@@ -63,9 +70,28 @@ fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
                             restoreState = true
                         }
                     },
-                    selectedContentColor = ChineseColor.KuHuang
+                    //selectedContentColor = ChineseColor.KuHuang
                 )
             }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PartialBottomSheet(vm: MainViewModel) {
+    val sheetState = rememberModalBottomSheetState(
+        false
+    )
+    val isShow = vm.isShowBottomSheet.collectAsState()
+    if (isShow.value) {
+        ModalBottomSheet(
+            modifier = Modifier.fillMaxHeight(),
+            sheetState = sheetState,
+            onDismissRequest = { vm.handleBottomIntent(BottomSheetIntent.CloseSheet) }
+        ) {
+            AddInterView()
         }
     }
 }

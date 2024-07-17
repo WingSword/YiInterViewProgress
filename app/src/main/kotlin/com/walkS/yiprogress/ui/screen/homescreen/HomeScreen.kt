@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,12 +15,15 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,6 +45,7 @@ import com.walkS.yiprogress.ui.theme.ChineseColor
 import com.walkS.yiprogress.ui.theme.Morandi
 import com.walkS.yiprogress.ui.widget.BottomSheet
 import com.walkS.yiprogress.ui.widget.IndeterminateLinearIndicator
+import com.walkS.yiprogress.ui.widget.PartialBottomSheet
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,25 +154,6 @@ fun InterviewCard(state: InterviewState) {
 }
 
 
-@Composable
-fun InterViewProgress(state: InterviewState) {
-    val progressNum = state.progressNum
-    val progress = state.progress
-    if (progressNum < 1 || progress > progressNum) return
-    var sliderPosition by remember { mutableStateOf(progress) }
-    Slider(
-        value = sliderPosition.toFloat(),
-        onValueChange = { sliderPosition = it.toInt() },
-        colors = SliderDefaults.colors(
-            thumbColor = MaterialTheme.colorScheme.secondary,
-            activeTrackColor = MaterialTheme.colorScheme.secondary,
-            inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
-        steps = progressNum,
-        valueRange = 0f..progressNum.toFloat(),
-        enabled = false,
-    )
-}
 
 
 @Preview
