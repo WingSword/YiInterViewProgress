@@ -1,4 +1,4 @@
-package com.walkS.yiprogress
+package com.walkS.yiprogress.intent
 
 sealed class MainIntent {
       object FetchData : MainIntent()

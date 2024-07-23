@@ -19,8 +19,8 @@ data class InterviewState(
     val progressNum: Int = 3,//总共阶段
     val time: String? = "",
     val info: String? = "",
+    val interviewTime:String=""
 )
-
 data class InterViewStateList(
     val isFreshing: Boolean = false,
     val list: List<InterviewState> = emptyList<InterviewState>()

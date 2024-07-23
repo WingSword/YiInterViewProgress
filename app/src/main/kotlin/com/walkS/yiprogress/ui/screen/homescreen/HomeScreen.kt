@@ -6,7 +6,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,26 +14,19 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blankj.utilcode.util.LogUtils
+import androidx.navigation.compose.rememberNavController
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.PullToRefreshScreen
 import com.walkS.yiprogress.entry.HOME
@@ -43,9 +35,8 @@ import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.ui.theme.ChineseColor
 import com.walkS.yiprogress.ui.theme.Morandi
-import com.walkS.yiprogress.ui.widget.BottomSheet
+import com.walkS.yiprogress.ui.widget.EmptyListWidget
 import com.walkS.yiprogress.ui.widget.IndeterminateLinearIndicator
-import com.walkS.yiprogress.ui.widget.PartialBottomSheet
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,22 +76,24 @@ fun InterViewListItem(
 
 @Composable
 fun HomeInterviewList(state: InterViewStateList, viewModel: MainViewModel) {
-
+    val navi = rememberNavController()
     if (state.isFreshing) {
         IndeterminateLinearIndicator()
-    } else if (state.list.isEmpty()) {
-        BottomSheet()
     } else {
-        for (item in state.list) {
-            LogUtils.d("item:${item.companyName}")
-            LazyColumn {
+        LazyColumn {
+            items(state.list.size) {pos->
+                InterViewListItem(state.list[pos], onClick = {
+
+                    navi.navigate(route = Profile.DETAIL_INTERVIEW.route)
+                })
+            }
+            if(state.list.isEmpty()){
                 item {
-                    InterViewListItem(item, onClick = {
-                        viewModel.navi?.navigate(route = Profile.DETAIL_INTERVIEW.route)
-                    })
+                   EmptyListWidget()
                 }
             }
         }
+
     }
 }
 
@@ -152,8 +145,6 @@ fun InterviewCard(state: InterviewState) {
     }
 
 }
-
-
 
 
 @Preview

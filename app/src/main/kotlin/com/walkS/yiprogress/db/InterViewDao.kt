@@ -18,7 +18,7 @@ interface InterViewDao {
 
     // 批量插入InterviewState，返回受影响的行数
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertInterviews(vararg data: InterviewState): List<Long>
+    fun insertInterviews( data: List<InterviewState>): List<Long>
 
     // 删除InterviewState，返回受影响的行数
     @Delete

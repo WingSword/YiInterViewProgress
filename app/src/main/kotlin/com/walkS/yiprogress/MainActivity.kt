@@ -17,7 +17,11 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.BottomSheetIntent
+import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.ui.screen.detailscreen.DetailScreen
 import com.walkS.yiprogress.ui.screen.homescreen.HomeInterviewList
@@ -59,11 +64,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
-
-
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList) {
@@ -87,8 +87,9 @@ fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList)
 
 @Composable
 fun AppWithNavigation(viewModel: MainViewModel) {
+
+    val snackState=viewModel.homeSnackBarHostState.collectAsState()
     val navi = rememberNavController()
-    viewModel.navi = navi
     val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(
         topBar = {
@@ -101,6 +102,9 @@ fun AppWithNavigation(viewModel: MainViewModel) {
             FloatingActionButton(onClick = { viewModel.handleBottomIntent(BottomSheetIntent.OpenSheet) }) {
                 Icon(Icons.Filled.Add, contentDescription = "Add")
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackState.value)
         },
     ) { innerPadding ->
         //content
