@@ -119,7 +119,7 @@ fun AppWithNavigation(viewModel: MainViewModel) {
                     composable(route = screen.route) {
                         when (screen) {
                             Profile.HOME_INTERVIEW_LIST_PAGE -> HomeScreen(viewModel)
-                            Profile.HOME_OFFER_LIST_PAGE -> OfferListPage()
+                            Profile.HOME_OFFER_LIST_PAGE -> OfferListPage(viewModel)
                             Profile.HOME_MINE_PAGE -> MinePage()
                             Profile.DETAIL_INTERVIEW -> DetailScreen(viewModel)
                             else -> {}
@@ -127,7 +127,7 @@ fun AppWithNavigation(viewModel: MainViewModel) {
                     }
                 }
             }
-            PartialBottomSheet(viewModel)
+            PartialBottomSheet(navController = navi,viewModel)
         }
 
     }

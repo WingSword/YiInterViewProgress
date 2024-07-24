@@ -5,11 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.walkS.yiprogress.state.InterviewState
+import com.walkS.yiprogress.state.OfferState
 import kotlin.concurrent.Volatile
 
-@Database(entities = [InterviewState::class], version = 1)
+@Database(entities = [InterviewState::class, OfferState::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun interViewDao(): InterViewDao?
+    abstract fun offerDao(): OfferDao?
 
     companion object {
         @Volatile

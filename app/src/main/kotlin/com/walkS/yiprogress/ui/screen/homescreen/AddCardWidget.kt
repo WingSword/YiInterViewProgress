@@ -1,19 +1,16 @@
 package com.walkS.yiprogress.ui.screen.homescreen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.AddCircle
 import androidx.compose.material.icons.sharp.Delete
@@ -24,17 +21,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -45,20 +34,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.walkS.yiprogress.state.InterviewState
+import com.walkS.yiprogress.MainViewModel
+import com.walkS.yiprogress.intent.OfferIntent
+
+import com.walkS.yiprogress.state.OfferState
+
+import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.ui.theme.ChineseColor
 import com.walkS.yiprogress.ui.theme.Morandi
 import com.walkS.yiprogress.ui.widget.AdvancedTimePickerExample
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Calendar
+import com.walkS.yiprogress.ui.widget.Form
+import com.walkS.yiprogress.utils.Email
+import com.walkS.yiprogress.utils.Field
+import com.walkS.yiprogress.utils.RandomUtils
+import com.walkS.yiprogress.utils.Required
 
 /**
  * Project YiProgress
@@ -120,7 +112,7 @@ fun AddInterView() {
 
         }
         val timeMap = remember {
-            mutableStateMapOf<String,String>()
+            mutableStateMapOf<String, String>()
         }
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(num) { no ->
@@ -144,9 +136,104 @@ fun AddInterView() {
     }
 }
 
+@Composable
+fun CommonSingleInputText(
+    value: String = "",
+    label: String = "",
+    modifier: Modifier,
+    onValueChange: (String) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+) {
+    var text by remember { mutableStateOf(value) }
+    OutlinedTextField(
+        value = text, onValueChange = {
+            text = it
+            onValueChange(it)
+        },
+        textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
+        label = { Text(label) },
+        singleLine = true,
+        modifier = modifier
+            .padding(horizontal = 4.dp),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon
+
+    )
+}
+
+@Composable
+fun AddQuickView(offerState: OfferState) {
+    Column {
+        Row() {
+            CommonSingleInputText(
+                value = offerState.companyName, onValueChange = { offerState.companyName = it },
+                label = "公司",
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(1f)
+            )
+            CommonSingleInputText(
+                value = offerState.department, onValueChange = { offerState.department = it },
+                label = "部门",
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(1f)
+            )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CommonSingleInputText(
+                value = offerState.job, onValueChange = { offerState.job = it },
+                label = "岗位",
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(3f)
+            )
+            CommonSingleInputText(
+                value = offerState.job, onValueChange = { offerState.job = it },
+                label = "薪资",
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .weight(2f),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                trailingIcon ={Text(text = "K")}
+            )
+        }
+    }
+}
+
+@Composable
+fun AddOfferView(vm:MainViewModel?=null) {
+    val offerState = remember { OfferState(RandomUtils.optOfferRandomId()) }
+    val state by remember { mutableStateOf(FormState()) }
+
+    Column {
+        Form(
+            state = state,
+            fields = listOf(
+                Field(name = "companyName", validators = listOf(Required())),
+                Field(name = "department", validators = listOf(Required()))
+            )
+        )
+        Button(onClick = {
+            if (state.validate()) {
+                vm?.handleOfferIntent(OfferIntent.SubmitOfferForm(state))
+            }
+        }) {
+            Text("完成")
+        }
+    }
+
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InterViewTimePicker( no:Int,showDelete: Boolean, onDelete: () -> Unit) {
+fun InterViewTimePicker(no: Int, showDelete: Boolean, onDelete: () -> Unit) {
     var showDateTimePicker by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,

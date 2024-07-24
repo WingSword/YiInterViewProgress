@@ -6,10 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.walkS.yiprogress.db.AppDatabase
+import com.walkS.yiprogress.db.OfferDao
 import com.walkS.yiprogress.intent.BottomSheetIntent
 import com.walkS.yiprogress.intent.MainIntent
+import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.state.InterViewStateList
+import com.walkS.yiprogress.state.OfferState
+import com.walkS.yiprogress.state.OfferStateList
 import com.walkS.yiprogress.state.SnackBarHostState
+import com.walkS.yiprogress.utils.RandomUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +28,14 @@ class MainViewModel : ViewModel() {
     private val _interviewListState = MutableStateFlow(InterViewStateList())
     val listState: StateFlow<InterViewStateList> = _interviewListState
 
+    private val _offerListState = MutableStateFlow(OfferStateList())
+    val offerListState: StateFlow<OfferStateList> = _offerListState
+
     private val _isShowBottomSheet = MutableStateFlow(false)
     val isShowBottomSheet: StateFlow<Boolean> = _isShowBottomSheet
 
-    private val _homeSnackBarState = MutableStateFlow( SnackbarHostState())
-    val homeSnackBarHostState: StateFlow< SnackbarHostState> = _homeSnackBarState
+    private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
+    val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
 
     // 处理意图
     fun handleInterViewList(intent: MainIntent) {
@@ -41,6 +49,56 @@ class MainViewModel : ViewModel() {
 
             MainIntent.IsLoading -> {
                 // 处理加载状态
+            }
+        }
+    }
+
+    //offer
+    fun handleOfferIntent(intent: OfferIntent) {
+        when (intent) {
+            is OfferIntent.SubmitOfferForm -> {
+                val offerState = OfferState(
+                    offerId = RandomUtils.optOfferRandomId(),
+                    companyName = intent.formState.getData()["companyName"] ?: "",
+                    department = intent.formState.getData()["department"] ?: ""
+                )
+
+                viewModelScope.launch {
+                    try {
+                        val db = AppDatabase.getInstance(MainApplication.appContext)
+                        db?.runInTransaction {
+                            // 建议：考虑实现批量插入以提高性能
+
+                            db.offerDao()?.upsertOffer(offerState)
+
+
+                        }
+                    } catch (e: Exception) {
+                        // 异常处理逻辑
+                    }
+                }
+
+
+            }
+
+            OfferIntent.fetchOfferList -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        val db = AppDatabase.getInstance(MainApplication.appContext)
+                        val list = db?.offerDao()?.getAllOffers()
+                        list?.let {
+                            _offerListState.value = _offerListState.value.copy(
+                                isRefreshing = false,
+                                list = list
+                            )
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            _homeSnackBarState.value.showSnackbar("刷新失败：${e.message}")
+                        }
+                        _offerListState.value = _offerListState.value.copy(true)
+                    }
+                }
             }
         }
     }
@@ -74,7 +132,7 @@ class MainViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     _homeSnackBarState.value.showSnackbar("刷新失败：${e.message}")
                 }
                 // 异常处理逻辑，例如记录日志或更新UI状态
