@@ -1,26 +1,31 @@
 package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.walkS.yiprogress.MainViewModel
-import com.walkS.yiprogress.entry.Profile
-import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
-import com.walkS.yiprogress.state.OfferStateList
-import com.walkS.yiprogress.ui.screen.homescreen.HomeInterviewList
-import com.walkS.yiprogress.ui.screen.homescreen.InterViewListItem
+import com.walkS.yiprogress.state.OfferState
+import com.walkS.yiprogress.ui.theme.YiProgressTheme
 import kotlinx.coroutines.launch
 
 /**
@@ -44,9 +49,9 @@ fun OfferListPage(viewModel: MainViewModel) {
         if (state.isRefreshing) {
             IndeterminateLinearIndicator()
         } else {
-            LazyColumn {
+            LazyVerticalGrid(GridCells.Fixed(2))  {
                 items(state.list.size) { pos ->
-                    Text(text = state.list[pos].companyName)
+                    OfferItem(state.list[pos])
                 }
                 if (state.list.isEmpty()) {
                     item {
@@ -59,9 +64,90 @@ fun OfferListPage(viewModel: MainViewModel) {
     }
 }
 
+
+@Composable
+fun OfferItem(state: OfferState) {
+    Card(modifier = Modifier.size(200.dp)) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(10.dp)
+        ) {
+            Text(text = state.companyName + state.department)
+            Text(text = state.job)
+            Text(text = "税前薪资:" + state.salary)
+            Text(text = "年终奖:" + state.yearEndBonusMonths)
+            Text(text = "补贴:" + state.allowances)
+            Text(text = "公积金:" + state.housingFund.toInt())
+        }
+    }
+
+
+}
+
 @Composable
 fun MinePage() {
 
+
     //
 
+}
+
+@Preview(showBackground = true, widthDp = 400, heightDp = 480)
+@Composable
+fun GreetingPreview() {
+    YiProgressTheme {
+        Row {
+            OfferItem(
+                OfferState(
+                    1,
+                    "长安汽车",
+                    "技术部",
+                    "ANDROID开发工程师",
+                    "2023-07-07",
+                    "北京",
+                    10,
+                    12000.0,
+                    50000.0,
+                    875.0,
+                    workingHours = "8:00-17:00",
+                    overtimeIntensity = "1",
+                    businessTripFrequency = "true",
+                    professionalMatch = true,
+                    careerDevelopmentHelp = true,
+                    promotionPotential = true,
+                    companySizeAndInfluence = "1",
+                    futureProspects = "1",
+                    otherDetails = "1",
+                    additionalInformation = "1",
+                )
+            )
+
+            OfferItem(
+                OfferState(
+                    1,
+                    "长安汽车",
+                    "技术部",
+                    "ANDROID开发工程师",
+                    "2023-07-07",
+                    "北京",
+                    10,
+                    12000.0,
+                    50000.0,
+                    875.0,
+                    workingHours = "8:00-17:00",
+                    overtimeIntensity = "1",
+                    businessTripFrequency = "true",
+                    professionalMatch = true,
+                    careerDevelopmentHelp = true,
+                    promotionPotential = true,
+                    companySizeAndInfluence = "1",
+                    futureProspects = "1",
+                    otherDetails = "1",
+                    additionalInformation = "1",
+                )
+            )
+        }
+
+    }
 }

@@ -218,8 +218,13 @@ fun AddOfferView() {
         Form(
             state = state,
             fields = listOf(
-                Field(name = "companyName", validators = listOf(Required())),
-                Field(name = "department", validators = listOf(Required()))
+                Field(name = "companyName", label = "公司", validators = listOf(Required())),
+                Field(name = "department", label = "部门",validators = listOf(Required())),
+                Field(name = "job", label = "岗位",validators = listOf(Required())),
+                Field(name = "salary", label = "薪资",validators = listOf(Required())),
+                Field(name = "yearEndBonusMonths", label = "年终奖",validators = listOf(Required())),
+                Field(name = "allowances", label = "补贴",validators = listOf(Required())),
+                Field(name = "housingFundBase", label = "公积金基数",validators = listOf(Required())),
             )
         )
         Button(onClick = {

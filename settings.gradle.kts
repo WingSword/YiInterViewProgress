@@ -9,6 +9,11 @@ pluginManagement {
             }
         }
         mavenCentral()
+        plugins {
+            kotlin("multiplatform") version "2.0.0"
+            kotlin("jvm") version "2.0.0"
+            kotlin("js") version "2.0.0"
+        }
     }
 }
 dependencyResolutionManagement {
@@ -21,4 +26,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "YiProgress"
 include(":app")
+include("desktop")
+include("common")
  

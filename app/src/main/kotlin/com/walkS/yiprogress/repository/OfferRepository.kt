@@ -15,7 +15,7 @@ class OfferRepository(private val offerDao: OfferDao) {
     val offers: Flow<List<OfferState>> = offerDao.getAllOffers()
 
     // 插入新的面试状态
-    suspend fun upsertInterview(offer: OfferState): Long {
+    suspend fun upsertOffer(offer: OfferState): Long {
         try {
             return offerDao.upsertOffer(offer)
         } catch (e: Exception) {
@@ -26,7 +26,7 @@ class OfferRepository(private val offerDao: OfferDao) {
     }
 
     // 删除面试状态
-    suspend fun deleteInterview(offerState: OfferState) {
+    suspend fun deleteOffer(offerState: OfferState) {
         // 检查offerId是否存在
         if (offerDao.offerExists(offerState.offerId)!=null) {
             offerDao.deleteOfferById(offerState.offerId)
@@ -38,8 +38,8 @@ class OfferRepository(private val offerDao: OfferDao) {
     }
 
     // 批量处理面试状态（示例性添加）
-    suspend fun batchUpsertInterview(offers: List<OfferState>): List<Long> {
+    suspend fun batchUpsertOffer(offers: List<OfferState>): List<Long> {
         // 假设性实现，具体取决于OfferDao是否支持批量操作
-        return offers.map { upsertInterview(it) }
+        return offers.map { upsertOffer(it) }
     }
 }

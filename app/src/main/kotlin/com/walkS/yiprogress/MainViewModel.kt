@@ -86,14 +86,16 @@ class MainViewModel : ViewModel() {
 
                 val offerState = OfferState(
                     offerId = RandomUtils.optOfferRandomId(),
-                    companyName = companyName,
-                    department = department
+                    companyName = formStateData["companyName"] ?: "",
+                    department = formStateData["department"] ?: "",
+                    salary = formStateData["salary"]?.toDouble() ?: 0.0,
+
                 )
 
                 viewModelScope.launch {
                     try {
                         val result =
-                            async(Dispatchers.IO) { offerRepository.upsertInterview(offerState) }.await()
+                            async(Dispatchers.IO) { offerRepository.upsertOffer(offerState) }.await()
                         if (result == offerState.offerId) {
                             _isShowBottomSheet.value = false
                             val list = _offerListState.value.list.toMutableList()
