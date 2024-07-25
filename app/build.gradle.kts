@@ -73,7 +73,7 @@ dependencies {
     implementation(libs.androidx.appcompat.resources)
     kapt (libs.androidx.room.compiler)
     implementation(libs.androidx.fragment.ktx)
-
+    implementation ("net.zetetic:sqlcipher-android:4.6.0@aar")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,24 +1,27 @@
 package com.walkS.yiprogress
 
 
+import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.walkS.yiprogress.db.AppDatabase
-import com.walkS.yiprogress.db.OfferDao
 import com.walkS.yiprogress.intent.BottomSheetIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
+import com.walkS.yiprogress.repository.InterviewRepository
+import com.walkS.yiprogress.repository.OfferRepository
 import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.state.OfferState
 import com.walkS.yiprogress.state.OfferStateList
-import com.walkS.yiprogress.state.SnackBarHostState
 import com.walkS.yiprogress.utils.RandomUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,6 +39,20 @@ class MainViewModel : ViewModel() {
 
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
+    private val interviewRepository: InterviewRepository by lazy {
+        InterviewRepository(
+            AppDatabase.getInstance(
+                MainApplication.appContext
+            )!!.interViewDao()
+        )
+    }
+    private val offerRepository: OfferRepository by lazy {
+        OfferRepository(
+            AppDatabase.getInstance(
+                MainApplication.appContext
+            )!!.offerDao()
+        )
+    }
 
     // 处理意图
     fun handleInterViewList(intent: MainIntent) {
@@ -57,51 +74,68 @@ class MainViewModel : ViewModel() {
     fun handleOfferIntent(intent: OfferIntent) {
         when (intent) {
             is OfferIntent.SubmitOfferForm -> {
+                // 数据验证
+                val formStateData = intent.formState.getData()
+                val companyName = formStateData["companyName"] ?: ""
+                val department = formStateData["department"] ?: ""
+
+                if (companyName.isEmpty() || department.isEmpty()) {
+                    // 处理数据不完整的情况
+                    return
+                }
+
                 val offerState = OfferState(
                     offerId = RandomUtils.optOfferRandomId(),
-                    companyName = intent.formState.getData()["companyName"] ?: "",
-                    department = intent.formState.getData()["department"] ?: ""
+                    companyName = companyName,
+                    department = department
                 )
 
                 viewModelScope.launch {
                     try {
-                        val db = AppDatabase.getInstance(MainApplication.appContext)
-                        db?.runInTransaction {
-                            // 建议：考虑实现批量插入以提高性能
-
-                            db.offerDao()?.upsertOffer(offerState)
-
-
-                        }
-                    } catch (e: Exception) {
-                        // 异常处理逻辑
-                    }
-                }
-
-
-            }
-
-            OfferIntent.fetchOfferList -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    try {
-                        val db = AppDatabase.getInstance(MainApplication.appContext)
-                        val list = db?.offerDao()?.getAllOffers()
-                        list?.let {
+                        val result =
+                            async(Dispatchers.IO) { offerRepository.upsertInterview(offerState) }.await()
+                        if (result == offerState.offerId) {
+                            _isShowBottomSheet.value = false
+                            val list = _offerListState.value.list.toMutableList()
+                            list.add(offerState)
                             _offerListState.value = _offerListState.value.copy(
                                 isRefreshing = false,
                                 list = list
                             )
                         }
                     } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            _homeSnackBarState.value.showSnackbar("刷新失败：${e.message}")
+                        // 异常处理，例如记录日志或向用户显示错误消息
+                        Log.e("OfferViewModel", "Failed to upsert interview", e)
+                        // 可以考虑在这里向UI反馈错误信息
+                    }
+                }
+            }
+
+            OfferIntent.fetchOfferList -> {
+                _offerListState.value = _offerListState.value.copy(isRefreshing = true)
+                viewModelScope.launch {
+                    try {
+                        offerRepository.offers.collectLatest { offerList ->
+                            withContext(Dispatchers.Main) {
+                                _offerListState.value = _offerListState.value.copy(
+                                    isRefreshing = false,
+                                    list = offerList
+                                )
+                            }
                         }
-                        _offerListState.value = _offerListState.value.copy(true)
+                    } catch (e: Exception) {
+                        // 异常处理
+                        Log.e("OfferViewModel", "Failed to fetch offer list", e)
+                        // 考虑向UI反馈错误信息
+                    } finally {
+                        // 确保在finally块中取消collect操作，避免资源泄露
+                        coroutineContext.cancelChildren()
                     }
                 }
             }
         }
     }
+
 
     fun handleBottomIntent(intent: BottomSheetIntent) {
         when (intent) {
@@ -119,41 +153,19 @@ class MainViewModel : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             delay(1000)
-            try {
-                val db = AppDatabase.getInstance(MainApplication.appContext)
-
-                if (db != null) {
-                    val list = db.interViewDao()?.loadAllInterviews()
-                    list?.let {
-                        _interviewListState.value = _interviewListState.value.copy(
-                            isFreshing = false,
-                            list = list
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _homeSnackBarState.value.showSnackbar("刷新失败：${e.message}")
-                }
-                // 异常处理逻辑，例如记录日志或更新UI状态
-                _interviewListState.value = _interviewListState.value.copy(isFreshing = false)
+            interviewRepository.interviews.collect {
+                _interviewListState.value = _interviewListState.value.copy(
+                    isFreshing = false,
+                    list = it
+                )
             }
         }
     }
 
-
     private fun saveDataToLocal() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val db = AppDatabase.getInstance(MainApplication.appContext)
-                db?.runInTransaction {
-                    // 建议：考虑实现批量插入以提高性能
-                    for (data in listState.value.list) {
-                        db.interViewDao()?.insertInterview(data)
-                    }
-                }
-            } catch (e: Exception) {
-                // 异常处理逻辑
+        viewModelScope.launch {
+            for (data in listState.value.list) {
+                interviewRepository.upsertInterview(data)
             }
         }
     }

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.intent.OfferIntent
 
@@ -208,7 +209,8 @@ fun AddQuickView(offerState: OfferState) {
 }
 
 @Composable
-fun AddOfferView(vm:MainViewModel?=null) {
+fun AddOfferView() {
+    val vm:MainViewModel= viewModel()
     val offerState = remember { OfferState(RandomUtils.optOfferRandomId()) }
     val state by remember { mutableStateOf(FormState()) }
 

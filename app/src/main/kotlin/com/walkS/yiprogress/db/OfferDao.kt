@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.walkS.yiprogress.state.OfferState
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Project YiProgress
@@ -37,7 +38,7 @@ interface OfferDao {
      * @return 所有OfferState实体的列表。
      */
     @Query("SELECT * FROM offers")
-    fun getAllOffers(): List<OfferState>
+    fun getAllOffers(): Flow<List<OfferState>>
 
     /**
      * 根据ID删除单个OfferState实体。
@@ -74,6 +75,6 @@ interface OfferDao {
      * @return 找到的OfferState实体，如果没有找到则返回null。
      */
     @Query("SELECT * FROM offers WHERE offerId = :id")
-    suspend fun findOfferById(id: Long): OfferState?
+    suspend fun offerExists(id: Long): OfferState?
 }
 

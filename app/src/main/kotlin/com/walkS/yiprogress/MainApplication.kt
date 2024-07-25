@@ -5,6 +5,10 @@ import android.app.Fragment
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContentProviderCompat.requireContext
+import com.walkS.yiprogress.db.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Project YiProgress
@@ -21,6 +25,9 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this.applicationContext
+        CoroutineScope(Dispatchers.IO).launch {
+            AppDatabase.getInstance(applicationContext)
+        }
     }
 }
 
