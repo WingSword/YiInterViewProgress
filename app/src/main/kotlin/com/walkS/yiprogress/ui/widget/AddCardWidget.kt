@@ -1,4 +1,4 @@
-package com.walkS.yiprogress.ui.screen.homescreen
+package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

@@ -3,12 +3,12 @@ package com.walkS.yiprogress.ui.widget
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,8 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -41,7 +40,6 @@ import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.ui.screen.AddOfferDialog
-import com.walkS.yiprogress.ui.screen.homescreen.AddInterView
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
 import com.walkS.yiprogress.utils.Field
 
@@ -148,14 +146,14 @@ fun IndeterminateCircularIndicator(size: Dp = 64.dp) {
 @Composable
 fun Form(state: FormState, fields: List<Field>) {
     state.fields = fields
-
-    Column(
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(4.dp)
             .scrollable(state = rememberScrollState(), orientation = Orientation.Vertical)
     ) {
-        fields.forEach {
-            it.Content()
+        items(fields.size) {
+            fields[it].Content()
         }
     }
 }
@@ -165,7 +163,10 @@ fun TotalDialog(viewModel: MainViewModel) {
     val isShowOfferDialog = viewModel.isShowOfferDialog.collectAsState()
     when {
         isShowOfferDialog.value -> {
-            AddOfferDialog(onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) })
+            AddOfferDialog(
+                onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) },
+                viewModel
+            )
         }
     }
 }

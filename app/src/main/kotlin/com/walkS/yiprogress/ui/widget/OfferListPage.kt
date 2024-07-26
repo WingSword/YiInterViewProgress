@@ -1,14 +1,19 @@
 package com.walkS.yiprogress.ui.widget
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -49,16 +54,20 @@ fun OfferListPage(viewModel: MainViewModel) {
         if (state.isRefreshing) {
             IndeterminateLinearIndicator()
         } else {
-            LazyVerticalGrid(GridCells.Fixed(2))  {
+            LazyVerticalGrid(GridCells.Fixed(2)) {
                 items(state.list.size) { pos ->
                     OfferItem(state.list[pos])
                 }
                 if (state.list.isEmpty()) {
                     item {
-                        EmptyListWidget()
+                        Spacer(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
+            if(state.list.isEmpty()){
+                EmptyListWidget()
+            }
+
         }
         PullRefreshIndicator(state.isRefreshing, pullState, Modifier.align(Alignment.TopCenter))
     }

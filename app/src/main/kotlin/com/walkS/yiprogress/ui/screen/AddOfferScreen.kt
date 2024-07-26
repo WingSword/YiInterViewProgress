@@ -1,22 +1,33 @@
 package com.walkS.yiprogress.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.TextButton
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.state.FormState
-import com.walkS.yiprogress.state.OfferState
+import com.walkS.yiprogress.ui.theme.ChineseColor
 import com.walkS.yiprogress.ui.widget.Form
 import com.walkS.yiprogress.utils.Field
-import com.walkS.yiprogress.utils.RandomUtils
 import com.walkS.yiprogress.utils.Required
 
 /**
@@ -37,21 +48,26 @@ fun OfferPageScreen(
 @Composable
 fun AddOfferDialog(
     onDismissRequest: () -> Unit,
-
+    vm: MainViewModel
 ) {
-
-    Dialog(onDismissRequest = { onDismissRequest() },) {
-        AddOfferView()
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(
+                    color = ChineseColor.Su,
+                )
+        ) {
+            AddOfferView(vm)
+        }
     }
 }
 
 @Composable
-fun AddOfferView() {
-    val vm: MainViewModel = viewModel()
-    val offerState = remember { OfferState(RandomUtils.optOfferRandomId()) }
+fun AddOfferView(viewModel: MainViewModel) {
     val state by remember { mutableStateOf(FormState()) }
-
-    Column {
+    Surface(modifier = Modifier.size(300.dp, 500.dp)) {
         Form(
             state = state,
             fields = listOf(
@@ -72,12 +88,14 @@ fun AddOfferView() {
                 ),
             )
         )
-        Button(onClick = {
+    }
+    TextButton(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
             if (state.validate()) {
-                vm?.handleOfferIntent(OfferIntent.SubmitOfferForm(state))
+                viewModel.handleOfferIntent(OfferIntent.SubmitOfferForm(state))
             }
         }) {
-            Text("完成")
-        }
+        Text("完成")
     }
 }

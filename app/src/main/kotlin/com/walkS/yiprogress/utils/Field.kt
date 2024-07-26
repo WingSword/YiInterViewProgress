@@ -3,16 +3,23 @@ package com.walkS.yiprogress.utils
 import android.util.Patterns
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.walkS.yiprogress.ui.screen.homescreen.CommonSingleInputText
+import com.walkS.yiprogress.ui.widget.CommonSingleInputText
 
 
 class Field(
@@ -42,20 +49,31 @@ class Field(
 
     @Composable
     fun Content() {
-        if(inputLines==1){
-            CommonSingleInputText(
-                value = text,
-                isError = hasError,
-                label = lbl,
-                modifier = Modifier.padding(10.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                onValueChange = { value ->
-                    hideError()
-                    text = value
-                }
-            )
-        }
-
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+                hideError()
+                text = it
+            },
+            isError = hasError,
+            maxLines = inputLines,
+            textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
+            label = { Text(lbl) },
+            singleLine = true,
+            modifier = Modifier
+                .padding(horizontal = 4.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+            ),
+        )
     }
 
     fun validate(): Boolean {
@@ -95,7 +113,7 @@ class Field(
 }
 
 private const val EMAIL_MESSAGE = "invalid email address"
-private const val REQUIRED_MESSAGE = "this field is required"
+private const val REQUIRED_MESSAGE = "不可为空"
 private const val REGEX_MESSAGE = "value does not match the regex"
 
 sealed interface Validator
