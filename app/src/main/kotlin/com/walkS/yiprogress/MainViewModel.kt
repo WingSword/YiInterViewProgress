@@ -6,7 +6,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.walkS.yiprogress.db.AppDatabase
-import com.walkS.yiprogress.intent.BottomSheetIntent
+import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.repository.InterviewRepository
@@ -37,6 +37,9 @@ class MainViewModel : ViewModel() {
     private val _isShowBottomSheet = MutableStateFlow(false)
     val isShowBottomSheet: StateFlow<Boolean> = _isShowBottomSheet
 
+    private val _isShowOfferDialog = MutableStateFlow(false)
+    val isShowOfferDialog: StateFlow<Boolean> = _isShowOfferDialog
+
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
     private val interviewRepository: InterviewRepository by lazy {
@@ -55,17 +58,27 @@ class MainViewModel : ViewModel() {
     }
 
     // 处理意图
-    fun handleInterViewList(intent: MainIntent) {
+    fun handleMainIntent(intent: MainIntent) {
         when (intent) {
-            MainIntent.FetchData -> fetchData()
-            MainIntent.FetchDataList -> {
 
+            MainIntent.CloseDialog -> _isShowOfferDialog.value = false
+            MainIntent.CloseSheet -> _isShowBottomSheet.value = false
+
+            is MainIntent.OpenDialog -> _isShowOfferDialog.value = true
+            MainIntent.OpenSheet -> _isShowBottomSheet.value = true
+        }
+    }
+
+    fun handleInterViewIntent(intent: InterViewIntent) {
+        when (intent) {
+            InterViewIntent.FetchData -> fetchData()
+            InterViewIntent.FetchDataList -> {
                 fetchData()
                 saveDataToLocal()
             }
 
-            MainIntent.IsLoading -> {
-                // 处理加载状态
+            InterViewIntent.IsLoading -> {
+                //no need
             }
         }
     }
@@ -90,7 +103,7 @@ class MainViewModel : ViewModel() {
                     department = formStateData["department"] ?: "",
                     salary = formStateData["salary"]?.toDouble() ?: 0.0,
 
-                )
+                    )
 
                 viewModelScope.launch {
                     try {
@@ -135,18 +148,6 @@ class MainViewModel : ViewModel() {
                     }
                 }
             }
-        }
-    }
-
-
-    fun handleBottomIntent(intent: BottomSheetIntent) {
-        when (intent) {
-            BottomSheetIntent.CloseSheet -> _isShowBottomSheet.value = false
-            BottomSheetIntent.IsLoading -> {
-                // 处理加载状态
-            }
-
-            BottomSheetIntent.OpenSheet -> _isShowBottomSheet.value = true
         }
     }
 

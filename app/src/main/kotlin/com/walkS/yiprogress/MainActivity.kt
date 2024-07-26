@@ -18,10 +18,8 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,18 +29,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.walkS.yiprogress.entry.Profile
-import com.walkS.yiprogress.intent.BottomSheetIntent
+import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.state.InterViewStateList
+import com.walkS.yiprogress.ui.screen.OfferPageScreen
 import com.walkS.yiprogress.ui.screen.detailscreen.DetailScreen
 import com.walkS.yiprogress.ui.screen.homescreen.HomeInterviewList
 import com.walkS.yiprogress.ui.screen.homescreen.HomeScreen
+import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
 import com.walkS.yiprogress.ui.theme.YiProgressTheme
 import com.walkS.yiprogress.ui.widget.MinePage
 import com.walkS.yiprogress.ui.widget.NavigationBottomLayout
 import com.walkS.yiprogress.ui.widget.NavigationTopBar
 import com.walkS.yiprogress.ui.widget.OfferListPage
 import com.walkS.yiprogress.ui.widget.PartialBottomSheet
+import com.walkS.yiprogress.ui.widget.TotalDialog
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -59,7 +60,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun initDataBase(){
+    fun initDataBase() {
 
     }
 }
@@ -72,7 +73,7 @@ fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList)
 
     //在这里做网络耗时操作
     fun refresh() = refreshScope.launch {
-        viewModel.handleInterViewList(MainIntent.FetchDataList)
+        viewModel.handleInterViewIntent(InterViewIntent.FetchDataList)
     }
 
     val pullState = rememberPullRefreshState(refreshState, ::refresh)
@@ -85,12 +86,10 @@ fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList)
 }
 
 
-
-
 @Composable
 fun AppWithNavigation(viewModel: MainViewModel) {
 
-    val snackState=viewModel.homeSnackBarHostState.collectAsState()
+    val snackState = viewModel.homeSnackBarHostState.collectAsState()
     val navi = rememberNavController()
     val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(
@@ -101,8 +100,15 @@ fun AppWithNavigation(viewModel: MainViewModel) {
             NavigationBottomLayout(navi, currentRoute)
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.handleBottomIntent(BottomSheetIntent.OpenSheet) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
+            val screen =navi.currentBackStackEntry?.destination
+            if (isHomeScreenPage(screen?.route)) {
+                FloatingActionButton(onClick = {
+                    if (screen?.route == Profile.HOME_OFFER_LIST_PAGE.route) {
+                        viewModel.handleMainIntent(MainIntent.OpenDialog())
+                    }
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add")
+                }
             }
         },
         snackbarHost = {
@@ -124,14 +130,19 @@ fun AppWithNavigation(viewModel: MainViewModel) {
                             Profile.HOME_OFFER_LIST_PAGE -> OfferListPage(viewModel)
                             Profile.HOME_MINE_PAGE -> MinePage()
                             Profile.DETAIL_INTERVIEW -> DetailScreen(viewModel)
+                            Profile.DETAIL_OFFER -> OfferPageScreen(
+                                navHostController = navi,
+                                viewModel = viewModel
+                            )
+
                             else -> {}
                         }
+                        PartialBottomSheet(navi, viewModel)
+                        TotalDialog(viewModel)
                     }
                 }
             }
-            PartialBottomSheet(navController = navi,viewModel)
         }
-
     }
 }
 

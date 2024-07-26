@@ -1,8 +1,10 @@
 package com.walkS.yiprogress.intent
 
 sealed class MainIntent {
-      object FetchData : MainIntent()
-      object FetchDataList : MainIntent()
-      object IsLoading : MainIntent()
+    data object OpenSheet : MainIntent()
+    data object CloseSheet : MainIntent()
+
+    data class OpenDialog(val type: String="") : MainIntent()
+    data object CloseDialog : MainIntent()
 }
 

@@ -2,6 +2,7 @@ package com.walkS.yiprogress.utils
 
 import android.util.Patterns
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -9,11 +10,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.walkS.yiprogress.ui.screen.homescreen.CommonSingleInputText
 
 
-class Field(val name: String, val label: String = name, val validators: List<Validator>) {
+class Field(
+    val name: String,
+    val label: String = name,
+    val validators: List<Validator>,
+    private val keyboardType: KeyboardType = KeyboardType.Text,
+    private val inputLines: Int = 1
+) {
     var text: String by mutableStateOf("")
     var lbl: String by mutableStateOf(label)
     var hasError: Boolean by mutableStateOf(false)
@@ -34,16 +42,20 @@ class Field(val name: String, val label: String = name, val validators: List<Val
 
     @Composable
     fun Content() {
-        CommonSingleInputText(
-            value = text,
-            isError = hasError,
-            label = lbl,
-            modifier = Modifier.padding(10.dp),
-            onValueChange = { value ->
-                hideError()
-                text = value
-            }
-        )
+        if(inputLines==1){
+            CommonSingleInputText(
+                value = text,
+                isError = hasError,
+                label = lbl,
+                modifier = Modifier.padding(10.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                onValueChange = { value ->
+                    hideError()
+                    text = value
+                }
+            )
+        }
+
     }
 
     fun validate(): Boolean {

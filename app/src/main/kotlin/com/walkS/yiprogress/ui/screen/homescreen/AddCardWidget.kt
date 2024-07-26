@@ -164,78 +164,7 @@ fun CommonSingleInputText(
         keyboardActions = keyboardActions,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon
-
     )
-}
-
-@Composable
-fun AddQuickView(offerState: OfferState) {
-    Column {
-        Row() {
-            CommonSingleInputText(
-                value = offerState.companyName, onValueChange = { offerState.companyName = it },
-                label = "公司",
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(1f)
-            )
-            CommonSingleInputText(
-                value = offerState.department, onValueChange = { offerState.department = it },
-                label = "部门",
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(1f)
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            CommonSingleInputText(
-                value = offerState.job, onValueChange = { offerState.job = it },
-                label = "岗位",
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(3f)
-            )
-            CommonSingleInputText(
-                value = offerState.job, onValueChange = { offerState.job = it },
-                label = "薪资",
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(2f),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                trailingIcon ={Text(text = "K")}
-            )
-        }
-    }
-}
-
-@Composable
-fun AddOfferView() {
-    val vm:MainViewModel= viewModel()
-    val offerState = remember { OfferState(RandomUtils.optOfferRandomId()) }
-    val state by remember { mutableStateOf(FormState()) }
-
-    Column {
-        Form(
-            state = state,
-            fields = listOf(
-                Field(name = "companyName", label = "公司", validators = listOf(Required())),
-                Field(name = "department", label = "部门",validators = listOf(Required())),
-                Field(name = "job", label = "岗位",validators = listOf(Required())),
-                Field(name = "salary", label = "薪资",validators = listOf(Required())),
-                Field(name = "yearEndBonusMonths", label = "年终奖",validators = listOf(Required())),
-                Field(name = "allowances", label = "补贴",validators = listOf(Required())),
-                Field(name = "housingFundBase", label = "公积金基数",validators = listOf(Required())),
-            )
-        )
-        Button(onClick = {
-            if (state.validate()) {
-                vm?.handleOfferIntent(OfferIntent.SubmitOfferForm(state))
-            }
-        }) {
-            Text("完成")
-        }
-    }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

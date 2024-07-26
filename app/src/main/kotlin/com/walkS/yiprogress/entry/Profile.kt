@@ -19,7 +19,11 @@ enum class Profile(val route: String, val title: String, val iconRes: Int = -1) 
     HOME_MINE_PAGE("${HOME}/mine", "我的", R.drawable.icon_user_selected),
 
     // 面试路由详情
-    DETAIL_INTERVIEW("${DETAIL}/interview", "面试详情");
+    DETAIL_INTERVIEW("${DETAIL}/interview", "面试详情"),
+
+    // offer路由详情
+    DETAIL_OFFER("${DETAIL}/offer", "offer详情");
+
 
     /**
      * 根据路由字符串解析对应的Profile枚举值。
