@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.AddCircle
 import androidx.compose.material.icons.sharp.Delete
-import androidx.compose.material3.Button
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,23 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.walkS.yiprogress.MainViewModel
-import com.walkS.yiprogress.intent.OfferIntent
 
-import com.walkS.yiprogress.state.OfferState
-
-import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.ui.theme.ChineseColor
 import com.walkS.yiprogress.ui.theme.Morandi
-import com.walkS.yiprogress.ui.widget.AdvancedTimePickerExample
-import com.walkS.yiprogress.ui.widget.Form
-import com.walkS.yiprogress.utils.Email
-import com.walkS.yiprogress.utils.Field
-import com.walkS.yiprogress.utils.RandomUtils
-import com.walkS.yiprogress.utils.Required
 
 /**
  * Project YiProgress

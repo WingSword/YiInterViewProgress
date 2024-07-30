@@ -1,34 +1,30 @@
-package com.walkS.yiprogress.utils
+package com.walkS.yiprogress.ui.field
 
 import android.util.Patterns
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.walkS.yiprogress.ui.widget.CommonSingleInputText
+import java.util.regex.Pattern
 
-
-class Field(
-    val name: String,
-    val label: String = name,
+class TextInputField(
+    override val name: String,
+    override val label: String = name,
+    override val fieldWeight: Float = 0f,
     val validators: List<Validator>,
     private val keyboardType: KeyboardType = KeyboardType.Text,
     private val inputLines: Int = 1
-) {
+) : Field {
     var text: String by mutableStateOf("")
     var lbl: String by mutableStateOf(label)
     var hasError: Boolean by mutableStateOf(false)
@@ -48,7 +44,8 @@ class Field(
     }
 
     @Composable
-    fun Content() {
+    override fun Content() {
+        val isRequired = validators.contains(Required)
         OutlinedTextField(
             value = text,
             onValueChange = {
@@ -58,8 +55,15 @@ class Field(
             isError = hasError,
             maxLines = inputLines,
             textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
-            label = { Text(lbl) },
-            singleLine = true,
+            label = {
+                Text(
+                    buildString {
+                        append(lbl)
+                        if (isRequired) append(" *") // 显示必填字段标识
+                    }
+                )
+            },
+            singleLine = inputLines == 1,
             modifier = Modifier
                 .padding(horizontal = 4.dp),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -76,47 +80,36 @@ class Field(
         )
     }
 
-    fun validate(): Boolean {
-        return validators.map {
-            when (it) {
-                is Email -> {
-                    if (!Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
-                        showError(it.message)
-                        return@map false
-                    }
-                    true
-                }
-
-                is Required -> {
-                    if (text.isEmpty()) {
-                        showError(it.message)
-                        return@map false
-                    }
-                    true
-                }
-
-                is Regex -> {
-                    if (!it.regex.toRegex().containsMatchIn(text)) {
-                        showError(it.message)
-                        return@map false
-                    }
-                    true
-                }
-
-                else -> {
-                    true
-                }
-            }
-        }.all { it }
+    override fun getValue(): Any {
+        return text
     }
 
+    override fun validate(): Boolean {
+        val errors = validators.mapNotNull { validator ->
+            when (validator) {
+                is Email -> if (!Patterns.EMAIL_ADDRESS.matcher(text).matches()) {
+                    showError(validator.message)
+                    validator.message
+                } else null
+
+                is Required -> if (text.isEmpty()) {
+                    showError(validator.message)
+                    validator.message
+                } else null
+
+                is Regex -> if (!Pattern.matches(validator.regex, text)) {
+                    showError(validator.message)
+                    validator.message
+                } else null
+
+                else -> null
+            }
+        }
+        if (errors.isNotEmpty()) {
+            showError(errors.first()) // 只显示第一个错误
+        } else {
+            hideError()
+        }
+        return errors.isEmpty()
+    }
 }
-
-private const val EMAIL_MESSAGE = "invalid email address"
-private const val REQUIRED_MESSAGE = "不可为空"
-private const val REGEX_MESSAGE = "value does not match the regex"
-
-sealed interface Validator
-open class Email(var message: String = EMAIL_MESSAGE) : Validator
-open class Required(var message: String = REQUIRED_MESSAGE) : Validator
-open class Regex(var message: String, var regex: String = REGEX_MESSAGE) : Validator

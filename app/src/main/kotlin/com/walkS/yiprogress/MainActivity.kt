@@ -19,6 +19,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
+import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.ui.screen.OfferPageScreen
 import com.walkS.yiprogress.ui.screen.detailscreen.DetailScreen
@@ -89,6 +91,11 @@ fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList)
 @Composable
 fun AppWithNavigation(viewModel: MainViewModel) {
 
+    LaunchedEffect(Unit) {
+        viewModel.handleOfferIntent(OfferIntent.fetchOfferList) // 这将在页面首次加载时调用
+
+        viewModel.handleInterViewIntent(InterViewIntent.FetchDataList) // 这将在页面首次加载时调用
+    }
     val snackState = viewModel.homeSnackBarHostState.collectAsState()
     val navi = rememberNavController()
     val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route

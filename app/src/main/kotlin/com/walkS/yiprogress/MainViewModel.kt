@@ -89,28 +89,48 @@ class MainViewModel : ViewModel() {
             is OfferIntent.SubmitOfferForm -> {
                 // 数据验证
                 val formStateData = intent.formState.getData()
-                val companyName = formStateData["companyName"] ?: ""
-                val department = formStateData["department"] ?: ""
-
-                if (companyName.isEmpty() || department.isEmpty()) {
-                    // 处理数据不完整的情况
-                    return
-                }
-
                 val offerState = OfferState(
                     offerId = RandomUtils.optOfferRandomId(),
-                    companyName = formStateData["companyName"] ?: "",
-                    department = formStateData["department"] ?: "",
-                    salary = formStateData["salary"]?.toDouble() ?: 0.0,
-
-                    )
+                    companyName = formStateData["companyName"].toString(),
+                    department = formStateData["department"].toString(),
+                    job = formStateData["job"].toString(),
+                    salary = formStateData.get("salary") as? Double ?: 0.0,
+                    yearEndBonusMonths = formStateData.get("yearEndBonusMonths")
+                            as? Double ?: 0.0,
+                    allowances = formStateData.get("allowances") as? Double ?: 0.0,
+                    annualPackagePreTax = formStateData.get("annualPackagePreTax")
+                            as? Double ?: 0.0,
+                    socialInsuranceBase = formStateData.get("socialInsuranceBase")
+                            as? Double ?: 0.0,
+                    housingFundBase = formStateData.get("housingFundBase")
+                            as? Double ?: 0.0,
+                    socialInsuranceRate = formStateData.get("socialInsuranceRate")
+                            as? Float ?: 0f,
+                    supplementaryHousingFund = formStateData.get("supplementaryHousingFund")
+                            as? Double ?: 0.0,
+                    housingFund = formStateData.get("housingFund") as? Double ?: 0.0,
+                    monthlyNetSalary = formStateData.get("monthlyNetSalary") as? Double ?: 0.0,
+                    monthlyIncome = formStateData.get("monthlyIncome") as? Double ?: 0.0,
+                    workingHours = formStateData["workingHours"].toString(),
+                    overtimeIntensity = formStateData["overtimeIntensity"].toString(),
+                    businessTripFrequency = formStateData["businessTripFrequency"].toString(),
+                    professionalMatch = formStateData.get("professionalMatch") as? Boolean ?: false,
+                    careerDevelopmentHelp = formStateData.get("careerDevelopmentHelp")
+                            as Boolean,
+                    promotionPotential = formStateData.get("promotionPotential") as? Boolean
+                        ?: false,
+                    companySizeAndInfluence = formStateData["companySizeAndInfluence"].toString(),
+                    futureProspects = formStateData["futureProspects"].toString(),
+                    otherDetails = formStateData["otherDetails"].toString(),
+                    additionalInformation = formStateData["additionalInformation"].toString()
+                )
 
                 viewModelScope.launch {
                     try {
                         val result =
                             async(Dispatchers.IO) { offerRepository.upsertOffer(offerState) }.await()
                         if (result == offerState.offerId) {
-                            _isShowBottomSheet.value = false
+                            _isShowOfferDialog.value = false
                             val list = _offerListState.value.list.toMutableList()
                             list.add(offerState)
                             _offerListState.value = _offerListState.value.copy(
@@ -124,6 +144,7 @@ class MainViewModel : ViewModel() {
                         // 可以考虑在这里向UI反馈错误信息
                     }
                 }
+
             }
 
             OfferIntent.fetchOfferList -> {

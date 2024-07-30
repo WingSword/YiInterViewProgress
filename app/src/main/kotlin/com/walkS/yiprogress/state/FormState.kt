@@ -1,6 +1,7 @@
 package com.walkS.yiprogress.state
 
-import com.walkS.yiprogress.utils.Field
+import com.walkS.yiprogress.ui.field.Field
+import com.walkS.yiprogress.ui.field.TextInputField
 
 class FormState{
      var fields: List<Field> = listOf()
@@ -15,5 +16,5 @@ class FormState{
          return valid
      }
 
-     fun getData(): Map<String, String> = fields.map { it.name to it.text }.toMap()
+     fun getData(): Map<String, Any> = fields.map { it.name to it.getValue() }.toMap()
  }
