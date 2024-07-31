@@ -1,13 +1,13 @@
-package com.walkS.yiprogress.ui.screen
+package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,10 +22,9 @@ import androidx.navigation.NavHostController
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.state.FormState
-import com.walkS.yiprogress.ui.theme.ChineseColor
-import com.walkS.yiprogress.ui.field.TextInputField
 import com.walkS.yiprogress.ui.field.Required
-import com.walkS.yiprogress.ui.widget.Form
+import com.walkS.yiprogress.ui.field.TextInputField
+import com.walkS.yiprogress.ui.theme.ChineseColor
 
 /**
  * Project YiProgress
@@ -40,25 +39,6 @@ fun OfferPageScreen(
     viewModel: MainViewModel
 ) {
 
-}
-
-@Composable
-fun AddOfferDialog(
-    onDismissRequest: () -> Unit,
-    vm: MainViewModel
-) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.medium)
-                .background(
-                    color = ChineseColor.Su,
-                )
-        ) {
-            AddOfferView(vm)
-        }
-    }
 }
 
 @Composable

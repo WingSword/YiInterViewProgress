@@ -1,42 +1,148 @@
 package com.walkS.yiprogress.ui.screen.homescreen
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.walkS.yiprogress.MainViewModel
-import com.walkS.yiprogress.PullToRefreshScreen
+import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_INTERVIEW
+import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.HOME
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.intent.InterViewIntent
+import com.walkS.yiprogress.intent.MainIntent
+import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.state.InterViewStateList
-import com.walkS.yiprogress.state.InterviewState
-import com.walkS.yiprogress.ui.theme.ChineseColor
-import com.walkS.yiprogress.ui.theme.Morandi
-import com.walkS.yiprogress.ui.widget.EmptyListWidget
-import com.walkS.yiprogress.ui.widget.IndeterminateLinearIndicator
+import com.walkS.yiprogress.ui.screen.detailscreen.DetailScreen
+import com.walkS.yiprogress.ui.widget.HomeInterviewList
+import com.walkS.yiprogress.ui.widget.MinePage
+import com.walkS.yiprogress.ui.widget.NavigationBottomLayout
+import com.walkS.yiprogress.ui.widget.NavigationTopBar
+import com.walkS.yiprogress.ui.widget.OfferListPage
+import com.walkS.yiprogress.ui.widget.OfferPageScreen
+import com.walkS.yiprogress.ui.widget.PartialBottomSheet
+import com.walkS.yiprogress.ui.widget.TotalDialog
+import kotlinx.coroutines.launch
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PullToRefreshScreen(viewModel: MainViewModel, stateList: InterViewStateList) {
+    val refreshScope = rememberCoroutineScope()
+    val refreshState = stateList.isFreshing
+
+    //在这里做网络耗时操作
+    fun refresh() = refreshScope.launch {
+        viewModel.handleInterViewIntent(InterViewIntent.FetchDataList)
+    }
+
+    val pullState = rememberPullRefreshState(refreshState, ::refresh)
+
+    Box(Modifier.pullRefresh(pullState)) {
+        HomeInterviewList(state = stateList, viewModel)
+        PullRefreshIndicator(refreshState, pullState, Modifier.align(Alignment.TopCenter))
+    }
+
+}
+
+
+@Composable
+fun App() {
+    val viewModel = viewModel<MainViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.handleOfferIntent(OfferIntent.fetchOfferList) // 这将在页面首次加载时调用
+
+        viewModel.handleInterViewIntent(InterViewIntent.FetchDataList) // 这将在页面首次加载时调用
+    }
+    val snackState = viewModel.homeSnackBarHostState.collectAsState()
+    val navi = rememberNavController()
+    val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route
+    Scaffold(
+        topBar = {
+            NavigationTopBar(navi, currentRoute)
+        },
+        bottomBar = {
+            NavigationBottomLayout(navi, currentRoute)
+        },
+        floatingActionButton = {
+            val screen = navi.currentBackStackEntry?.destination
+            if (isHomeScreenPage(screen?.route)) {
+                FloatingActionButton(onClick = {
+                    when (screen?.route) {
+                        Profile.HOME_OFFER_LIST_PAGE.route -> {
+                            viewModel.handleMainIntent(
+                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_OFFER)
+                            )
+                        }
+                        Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
+                            viewModel.handleMainIntent(
+                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
+                            )
+                        }
+                    }
+
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add")
+                }
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackState.value)
+        },
+    ) { innerPadding ->
+        //content
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            NavHost(navi, startDestination = Profile.HOME_INTERVIEW_LIST_PAGE.route) {
+                Profile.entries.forEach { screen ->
+                    composable(route = screen.route) {
+                        when (screen) {
+                            Profile.HOME_INTERVIEW_LIST_PAGE -> HomeScreen(viewModel)
+                            Profile.HOME_OFFER_LIST_PAGE -> OfferListPage(viewModel)
+                            Profile.HOME_MINE_PAGE -> MinePage()
+                            Profile.DETAIL_INTERVIEW -> DetailScreen(viewModel)
+                            Profile.DETAIL_OFFER -> OfferPageScreen(
+                                navHostController = navi,
+                                viewModel = viewModel
+                            )
+
+                            else -> {}
+                        }
+                        PartialBottomSheet(navi, viewModel)
+                        TotalDialog(viewModel)
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,117 +156,4 @@ fun isHomeScreenPage(route: String?): Boolean {
     return route?.startsWith(HOME) ?: true // 替换为你的二级页面的route
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun InterViewListItem(
-    state: InterviewState,
-    onClick: (() -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .combinedClickable(
-                onClick = {
-                    onClick?.invoke()
-                },
-                onLongClick = {
-                    onLongClick?.invoke()
-                })
-    ) {
-        InterviewCard(state = state)
-    }
-}
-
-
-@Composable
-fun HomeInterviewList(state: InterViewStateList, viewModel: MainViewModel) {
-    val navi = rememberNavController()
-    if (state.isFreshing) {
-        IndeterminateLinearIndicator()
-    } else {
-        LazyColumn {
-            items(state.list.size) {pos->
-                InterViewListItem(state.list[pos], onClick = {
-
-                    navi.navigate(route = Profile.DETAIL_INTERVIEW.route)
-                })
-            }
-            if(state.list.isEmpty()){
-                item {
-                   EmptyListWidget()
-                }
-            }
-        }
-
-    }
-}
-
-@Composable
-fun InterviewCard(state: InterviewState) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(125.dp)
-            .background(color = Morandi.MorandiPurple, shape = MaterialTheme.shapes.large)
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-    ) {
-        Row(modifier = Modifier.padding(bottom = 4.dp)) {
-            Text(
-                text = state.companyName + state.department,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .align(Alignment.CenterVertically)
-            )
-
-        }
-
-        Text(text = state.job ?: "", style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.weight(1f))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = state.time ?: "", style = MaterialTheme.typography.labelMedium)
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = state.interviewStatus.toString(),
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-        LazyRow {
-            items(state.progressNum) { pos ->
-                val color =
-                    if (pos == state.progress) ChineseColor.Su
-                    else if (pos < state.progress) ChineseColor.BiSe
-                    else ChineseColor.ChongSe
-                Spacer(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .size(12.dp)
-                        .background(color = color, shape = CircleShape)
-                )
-
-            }
-        }
-    }
-
-}
-
-
-@Preview
-@Composable
-fun interviewPreview() {
-    val state = InterviewState(
-        itemId = 1,
-        companyName = "一二四",
-        department = "三三三",
-        job = "散散",
-        interviewStatus = "面试中",
-        progress = 1,
-        progressNum = 5,
-        time = "2023-05-01 13:00",
-        info = "面试中"
-    )
-    InterviewCard(state = state)
-}
 

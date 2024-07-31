@@ -37,11 +37,19 @@ class MainViewModel : ViewModel() {
     private val _isShowBottomSheet = MutableStateFlow(false)
     val isShowBottomSheet: StateFlow<Boolean> = _isShowBottomSheet
 
-    private val _isShowOfferDialog = MutableStateFlow(false)
-    val isShowOfferDialog: StateFlow<Boolean> = _isShowOfferDialog
+
+    private val _isShowViewDialog = MutableStateFlow(DIALOG_TYPE_DISMISS)
+    val isShowViewDialog: StateFlow<Int> = _isShowViewDialog
 
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
+
+    companion object {
+        const val DIALOG_TYPE_DISMISS = 0
+        const val DIALOG_TYPE_SHOW_ADD_INTERVIEW = 1
+        const val DIALOG_TYPE_SHOW_ADD_OFFER = 2
+    }
+
     private val interviewRepository: InterviewRepository by lazy {
         InterviewRepository(
             AppDatabase.getInstance(
@@ -61,10 +69,16 @@ class MainViewModel : ViewModel() {
     fun handleMainIntent(intent: MainIntent) {
         when (intent) {
 
-            MainIntent.CloseDialog -> _isShowOfferDialog.value = false
+            MainIntent.CloseDialog -> {
+                _isShowViewDialog.value = DIALOG_TYPE_DISMISS
+            }
+
             MainIntent.CloseSheet -> _isShowBottomSheet.value = false
 
-            is MainIntent.OpenDialog -> _isShowOfferDialog.value = true
+            is MainIntent.OpenDialog -> {
+                _isShowViewDialog.value = intent.type
+            }
+
             MainIntent.OpenSheet -> _isShowBottomSheet.value = true
         }
     }
@@ -79,6 +93,10 @@ class MainViewModel : ViewModel() {
 
             InterViewIntent.IsLoading -> {
                 //no need
+            }
+
+            is InterViewIntent.NewInterView -> {
+
             }
         }
     }
@@ -130,7 +148,7 @@ class MainViewModel : ViewModel() {
                         val result =
                             async(Dispatchers.IO) { offerRepository.upsertOffer(offerState) }.await()
                         if (result == offerState.offerId) {
-                            _isShowOfferDialog.value = false
+                            _isShowViewDialog.value = DIALOG_TYPE_DISMISS
                             val list = _offerListState.value.list.toMutableList()
                             list.add(offerState)
                             _offerListState.value = _offerListState.value.copy(

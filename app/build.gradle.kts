@@ -56,7 +56,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(libs.androidx.material)
+
     implementation(libs.kotlinx.serialization.json.v170)
     // optional - Jetpack Compose integration
     implementation(libs.paging.compose)
@@ -73,7 +73,8 @@ dependencies {
     implementation(libs.androidx.appcompat.resources)
     kapt (libs.androidx.room.compiler)
     implementation(libs.androidx.fragment.ktx)
-    implementation ("net.zetetic:sqlcipher-android:4.6.0@aar")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

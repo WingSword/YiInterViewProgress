@@ -1,6 +1,8 @@
 package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -22,18 +24,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.walkS.yiprogress.MainViewModel
+import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_INTERVIEW
+import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.MainIntent
-import com.walkS.yiprogress.ui.screen.AddOfferDialog
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
+import com.walkS.yiprogress.ui.theme.ChineseColor
 
 @Preview
 @Composable
@@ -83,10 +90,6 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
             onDismissRequest = { vm.handleMainIntent(MainIntent.CloseSheet) }
         ) {
 
-            when (currentRoute) {
-
-                Profile.HOME_INTERVIEW_LIST_PAGE.route -> AddInterView()
-            }
 
         }
     }
@@ -138,13 +141,42 @@ fun IndeterminateCircularIndicator(size: Dp = 64.dp) {
 
 @Composable
 fun TotalDialog(viewModel: MainViewModel) {
-    val isShowOfferDialog = viewModel.isShowOfferDialog.collectAsState()
-    when {
-        isShowOfferDialog.value -> {
-            AddOfferDialog(
-                onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) },
-                viewModel
-            )
+
+    val isShowAddInterViewDialog = viewModel.isShowViewDialog.collectAsState()
+    when(isShowAddInterViewDialog.value) {
+        DIALOG_TYPE_SHOW_ADD_OFFER -> {
+            BaseDialog(onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) }) {
+                AddOfferView(
+                    viewModel
+                )
+            }
+        }
+
+        DIALOG_TYPE_SHOW_ADD_INTERVIEW -> {
+            BaseDialog(onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) }) {
+                AddInterView(
+                    viewModel
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BaseDialog(
+    onDismissRequest: () -> Unit,
+    content: @Composable (onDismissRequest: () -> Unit) -> Unit
+) {
+    Dialog(onDismissRequest = { onDismissRequest.invoke() }) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(
+                    color = ChineseColor.Su,
+                )
+        ) {
+            content.invoke(onDismissRequest)
         }
     }
 }

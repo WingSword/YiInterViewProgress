@@ -1,5 +1,7 @@
 package com.walkS.yiprogress.intent
 
+import com.walkS.yiprogress.state.FormState
+
 /**
  * Project YiProgress
  * Created by Wing on 2024/7/26 16:03.
@@ -10,5 +12,6 @@ sealed class InterViewIntent {
     data object FetchData : InterViewIntent()
     data object FetchDataList : InterViewIntent()
     data object IsLoading : InterViewIntent()
+    data class NewInterView(val formState: FormState) : InterViewIntent()
 
 }

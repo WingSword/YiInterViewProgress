@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.AddCircle
 import androidx.compose.material.icons.sharp.Delete
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,24 +18,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.walkS.yiprogress.MainViewModel
+import com.walkS.yiprogress.intent.InterViewIntent
+import com.walkS.yiprogress.state.FormState
+import com.walkS.yiprogress.ui.field.Required
+import com.walkS.yiprogress.ui.field.TextInputField
 
 import com.walkS.yiprogress.ui.theme.ChineseColor
-import com.walkS.yiprogress.ui.theme.Morandi
 
 /**
  * Project YiProgress
@@ -46,80 +49,29 @@ import com.walkS.yiprogress.ui.theme.Morandi
  *
  **/
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun AddInterView() {
-    val brush = remember {
-        Brush.linearGradient(
-            colors = listOf(
-                Morandi.MorandiRed,
-                Morandi.MorandiBlue,
-                Morandi.MorandiPink,
-                Morandi.MorandiBrown,
-                Morandi.MorandiGreen
-            )
+fun AddInterView(vm: MainViewModel) {
+    val state by remember { mutableStateOf(FormState()) }
+    val formList = listOf(
+        TextInputField(name = "companyName", label = "公司", validators = listOf(Required)),
+        TextInputField(name = "department", label = "部门", validators = listOf(Required)),
+        TextInputField(name = "job", label = "岗位", validators = listOf(Required)),
+        TextInputField(name = "job", label = "工作城市", validators = listOf(Required)),
+
         )
+
+    Surface(modifier = Modifier.size(300.dp, 500.dp)) {
+        Form(state = state, fields = formList)
     }
-    var companyName by remember { mutableStateOf("") }
-    var departName by remember { mutableStateOf("") }
-    var jobName by remember { mutableStateOf("") }
-    var num by remember { mutableIntStateOf(3) }
-
-    Column {
-        Row() {
-            OutlinedTextField(
-                value = companyName, onValueChange = { companyName = it },
-                textStyle = TextStyle(brush = brush),
-                label = { Text("公司") },
-                singleLine = true,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(1f)
-            )
-            OutlinedTextField(
-                value = departName, onValueChange = { departName = it },
-                textStyle = TextStyle(brush = brush),
-                label = { Text("部门") },
-                singleLine = true,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(1f)
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = jobName, onValueChange = { jobName = it },
-                textStyle = TextStyle(brush = brush),
-                label = { Text("岗位") },
-                singleLine = true,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .weight(2f)
-            )
-
-        }
-        val timeMap = remember {
-            mutableStateMapOf<String, String>()
-        }
-        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            items(num) { no ->
-
+    TextButton(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            if (state.validate()) {
+                vm.handleInterViewIntent(InterViewIntent.NewInterView(state))
             }
-            item {
-                IconButton(
-                    onClick = { num-- },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(brush, shape = MaterialTheme.shapes.small)
-                        .padding(4.dp)
-
-                ) {
-                    Icon(imageVector = Icons.Sharp.AddCircle, contentDescription = "")
-                }
-            }
-        }
+        }) {
+        Text("完成")
     }
 }
 
