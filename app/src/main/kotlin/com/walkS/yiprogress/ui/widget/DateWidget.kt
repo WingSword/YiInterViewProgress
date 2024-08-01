@@ -35,7 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.blankj.utilcode.util.TimeUtils
 import com.walkS.yiprogress.utils.DateTimeUtils
+import java.sql.Date
 import java.time.Instant
 
 import java.time.LocalDateTime
@@ -72,8 +74,8 @@ fun YiDatePicker() {
         }
 
         if (showDateTimePicker) {
-            AdvancedTimePickerExample(onConfirm = {
-                time.value = "${it.hour}:${it.minute}"
+            AdvancedTimePickerExample(onConfirm = { it, time ->
+                //time.value = "${it.hour}:${it.minute}"
                 showDateTimePicker = false
             }) {
                 showDateTimePicker = false
@@ -91,7 +93,7 @@ fun YiDatePicker() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvancedTimePickerExample(
-    onConfirm: (TimePickerState) -> Unit,
+    onConfirm: (TimePickerState, String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val currentTime = Calendar.getInstance()
@@ -100,6 +102,7 @@ fun AdvancedTimePickerExample(
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true,
     )
+
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = currentTime.timeInMillis,
     )
@@ -107,19 +110,21 @@ fun AdvancedTimePickerExample(
     // 封装showDial状态和切换逻辑
     var showDial by remember { mutableStateOf(true) }
     val toggleShowDial = { showDial = !showDial }
-    val dateTimeState= ZonedDateTime.ofInstant(
+    val dateTimeState = ZonedDateTime.ofInstant(
         Instant.ofEpochMilli(datePickerState.selectedDateMillis ?: currentTime.timeInMillis),
         ZoneId.systemDefault()
     ).format(
         DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-    ) +" ${timePickerState.hour}"+":${timePickerState.minute}"
+    ) + " ${if (timePickerState.hour < 10) "0${timePickerState.hour}" else timePickerState.hour}" +
+            ":${if(timePickerState.minute<10) "0${timePickerState.minute}" else timePickerState.minute}"
     AdvancedTimePickerDialog(
         onDismiss = onDismiss,
         onConfirm = {
             if (showDial) {
                 toggleShowDial()
             } else {
-                onConfirm(timePickerState)
+
+                onConfirm(timePickerState, dateTimeState)
             }
         },
         toggle = {

@@ -50,8 +50,21 @@ fun Form(state: FormState, fields: List<Field>) {
             rowWeight = fields[it].fieldWeight
             if (rowWeight == 0f) {
                 fields[it].Content()
+            } else if(rowWeight>0){
+                Row {
+                    FormRowContent(start = it, fields = fields)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun FormRowContent(start: Int, fields: List<Field>) {
+    fields[start].fieldWeight = -1f
+    fields[start].Content()
+    if (start + 1 < fields.size && fields[start + 1].fieldWeight != 0f) {
+        FormRowContent(start = start + 1, fields = fields)
     }
 }
    

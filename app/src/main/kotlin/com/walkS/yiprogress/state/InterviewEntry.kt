@@ -19,7 +19,9 @@ data class InterviewState(
     val progressNum: Int = 3,//总共阶段
     val time: String? = "",
     val info: String? = "",
-    val interviewTime:String=""
+    val interviewTime:String="",
+    val city:String?="",
+    val salary:Double?=0.0,
 )
 data class InterViewStateList(
     val isFreshing: Boolean = false,

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 class SliderField(
     override val name: String,
     override val label: String,
-    override val fieldWeight: Float = 0f,
+    override var fieldWeight: Float = 0f,
     val valueRange: ClosedFloatingPointRange<Float>,
     val initialValue: Float
 ) : Field {

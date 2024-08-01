@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 interface Field {
     val name: String
     val label: String
-    val fieldWeight: Float
+    var fieldWeight: Float
 
     @Composable
     fun Content()

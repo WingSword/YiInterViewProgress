@@ -11,7 +11,7 @@ import androidx.compose.runtime.setValue
 class CheckboxGroupField(
     override val name: String,
     override val label: String,
-    override val fieldWeight: Float = 0f,
+    override var fieldWeight: Float = 0f,
     val options: List<String>,
 ) : Field {
     var selectedOptions: MutableSet<String> by mutableStateOf(mutableSetOf())

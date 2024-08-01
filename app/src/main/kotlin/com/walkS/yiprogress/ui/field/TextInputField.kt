@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 class TextInputField(
     override val name: String,
     override val label: String = name,
-    override val fieldWeight: Float = 0f,
+    override var fieldWeight: Float = 0f,
     val validators: List<Validator>,
     private val keyboardType: KeyboardType = KeyboardType.Text,
     private val inputLines: Int = 1
