@@ -96,7 +96,14 @@ class MainViewModel : ViewModel() {
             }
 
             is InterViewIntent.NewInterView -> {
+                viewModelScope.launch {
+                    val result =
+                        async(Dispatchers.IO) { interviewRepository.upsertInterview(intent.formState) }.await()
 
+                    if (result == intent.formState.itemId) {
+                        _isShowViewDialog.value = DIALOG_TYPE_DISMISS
+                    }
+                }
             }
         }
     }

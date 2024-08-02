@@ -12,10 +12,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.ui.widget.AddInterView
 
 
 @Composable
 fun DetailScreen(viewModel: MainViewModel) {
-    Text(text = "detail")
-
+    AddInterView(
+        viewModel
+    )
 }

@@ -10,8 +10,8 @@ class InterviewRepository(private val interviewDao: InterViewDao) {
     val interviews: Flow<List<InterviewState>> = interviewDao.loadAllInterviews()
 
     // 插入新的面试状态
-    suspend fun upsertInterview(interview: InterviewState) {
-        interviewDao.upsertInterview(interview)
+    suspend fun upsertInterview(interview: InterviewState):Long {
+        return interviewDao.upsertInterview(interview)
     }
 
 

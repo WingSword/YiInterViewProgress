@@ -98,9 +98,10 @@ fun App() {
                             )
                         }
                         Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
-                            viewModel.handleMainIntent(
-                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
-                            )
+                            navi.navigate(Profile.DETAIL_INTERVIEW.route)
+//                            viewModel.handleMainIntent(
+//                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
+//                            )
                         }
                     }
 
