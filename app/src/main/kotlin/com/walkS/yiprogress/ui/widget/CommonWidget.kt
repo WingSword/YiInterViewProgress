@@ -1,20 +1,41 @@
 package com.walkS.yiprogress.ui.widget
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -24,10 +45,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -46,14 +70,23 @@ import com.walkS.yiprogress.ui.theme.ChineseColor
 @Composable
 fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
     if (isHomeScreenPage(currentRoute)) {
-        NavigationBar {
+        NavigationBar(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 32.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .height(60.dp),
+
+            ) {
             Profile.entries.filter { isHomeScreenPage(it.route) }.forEach { label ->
                 NavigationBarItem(
                     icon = {
                         Icon(
                             painter = painterResource(label.iconRes),
                             contentDescription = null,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.CenterVertically)
+
                         )
                     },
                     selected = currentRoute == label.route,
@@ -66,6 +99,7 @@ fun NavigationBottomLayout(navi: NavController, currentRoute: String?) {
                             restoreState = true
                         }
                     },
+                    alwaysShowLabel = false,
                     //selectedContentColor = ChineseColor.KuHuang
                 )
             }
@@ -99,24 +133,112 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationTopBar(navi: NavController, currentRoute: String?) {
-
     CenterAlignedTopAppBar(
-        title = { Text(Profile.fromRoute(currentRoute)?.title ?: "") },
+        title = { },
         navigationIcon = {
-            IconButton(onClick = {
-                if (isHomeScreenPage(currentRoute)) {
-                    navi.navigate(Profile.DETAIL_INTERVIEW.route)
-                } else {
-                    navi.popBackStack()
+            AnimatedVisibility(!isHomeScreenPage(currentRoute)) {
+                IconButton(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .border(width = 2.dp, color = Color.Black, shape = CircleShape),
+                    onClick = {
+                        navi.popBackStack()
+                    },
+                    colors = IconButtonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White,
+                        disabledContentColor = Color.Red,
+                        disabledContainerColor = Color.Black
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "back button"
+                    )
                 }
-            }) {
-                Icon(
-                    imageVector = if (isHomeScreenPage(currentRoute)) Icons.AutoMirrored.Filled.List else Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Localized description"
-                )
             }
         },
+        actions = {
+            TopActionButton(isHomeScreenPage(currentRoute)) {
+                val screen = navi.currentBackStackEntry?.destination
+                if (!isHomeScreenPage(currentRoute)) {
+                    navi.popBackStack()
+                } else {
+                    when (screen?.route) {
+                        Profile.HOME_OFFER_LIST_PAGE.route -> {
+//                                viewModel.handleMainIntent(
+//                                    MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_OFFER)
+//                                )
+                        }
+
+                        Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
+                            navi.navigate(Profile.DETAIL_INTERVIEW.route)
+//                            viewModel.handleMainIntent(
+//                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
+//                            )
+                        }
+                    }
+                }
+            }
+
+        },
+        modifier = Modifier.padding(24.dp)
     )
+}
+
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TopActionButton(isExtend: Boolean, onActionButtonClick: () -> Unit) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isExtend) Color.Black else Color.Transparent,
+        label = "background color"
+    )
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .combinedClickable(
+                enabled = isExtend,
+                onClick = { onActionButtonClick.invoke() }
+            )
+            .background(color = backgroundColor, shape = CircleShape)
+            .padding(end = 4.dp, start = 16.dp, top = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End,
+
+    ) {
+        AnimatedVisibility(isExtend) {
+            Text(
+                modifier = Modifier.padding(end = 4.dp),
+                text = "Add",
+                textAlign = TextAlign.Center,
+                color = Color.White
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .border(
+                    width = 2.dp,
+                    color = Color.Black,
+                    shape = CircleShape
+                ),
+            onClick = {
+                onActionButtonClick.invoke()
+            },
+            colors = IconButtonColors(
+                containerColor = if (!isExtend) Color(0xF3F6F8FF) else Color.Black,
+                contentColor = if (!isExtend) Color.Black else Color.White,
+                disabledContentColor = Color.Red,
+                disabledContainerColor = Color.Black,
+            ),
+        ) {
+            Icon(
+                imageVector = if (!isExtend) Icons.Filled.Done else Icons.Filled.Add,
+                contentDescription = "done button",
+            )
+        }
+    }
 }
 
 
@@ -143,7 +265,7 @@ fun IndeterminateCircularIndicator(size: Dp = 64.dp) {
 fun TotalDialog(viewModel: MainViewModel) {
 
     val isShowAddInterViewDialog = viewModel.isShowViewDialog.collectAsState()
-    when(isShowAddInterViewDialog.value) {
+    when (isShowAddInterViewDialog.value) {
         DIALOG_TYPE_SHOW_ADD_OFFER -> {
             BaseDialog(onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) }) {
                 AddOfferView(

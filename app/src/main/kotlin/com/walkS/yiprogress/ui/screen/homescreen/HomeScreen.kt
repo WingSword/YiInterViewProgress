@@ -87,29 +87,7 @@ fun App() {
         bottomBar = {
             NavigationBottomLayout(navi, currentRoute)
         },
-        floatingActionButton = {
-            val screen = navi.currentBackStackEntry?.destination
-            if (isHomeScreenPage(screen?.route)) {
-                FloatingActionButton(onClick = {
-                    when (screen?.route) {
-                        Profile.HOME_OFFER_LIST_PAGE.route -> {
-                            viewModel.handleMainIntent(
-                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_OFFER)
-                            )
-                        }
-                        Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
-                            navi.navigate(Profile.DETAIL_INTERVIEW.route)
-//                            viewModel.handleMainIntent(
-//                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
-//                            )
-                        }
-                    }
 
-                }) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add")
-                }
-            }
-        },
         snackbarHost = {
             SnackbarHost(hostState = snackState.value)
         },
