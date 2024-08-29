@@ -276,9 +276,7 @@ fun TotalDialog(viewModel: MainViewModel) {
 
         DIALOG_TYPE_SHOW_ADD_INTERVIEW -> {
             BaseDialog(onDismissRequest = { viewModel.handleMainIntent(MainIntent.CloseDialog) }) {
-                AddInterView(
-                    viewModel
-                )
+
             }
         }
     }

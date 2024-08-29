@@ -44,6 +44,10 @@ class MainViewModel : ViewModel() {
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
 
+    private val _interviewEditViewState = mutableMapOf<String, MutableStateFlow<String>>()
+    val interviewEditViewState: Map<String, StateFlow<String>> = _interviewEditViewState
+
+
     companion object {
         const val DIALOG_TYPE_DISMISS = 0
         const val DIALOG_TYPE_SHOW_ADD_INTERVIEW = 1
@@ -103,6 +107,14 @@ class MainViewModel : ViewModel() {
                     if (result == intent.formState.itemId) {
                         _isShowViewDialog.value = DIALOG_TYPE_DISMISS
                     }
+                }
+            }
+
+            is InterViewIntent.InterviewDataChanged -> {
+                if (_interviewEditViewState[intent.key] == null) {
+                    _interviewEditViewState[intent.key] = MutableStateFlow(intent.data)
+                } else {
+                    _interviewEditViewState[intent.key]!!.value  = intent.data
                 }
             }
         }

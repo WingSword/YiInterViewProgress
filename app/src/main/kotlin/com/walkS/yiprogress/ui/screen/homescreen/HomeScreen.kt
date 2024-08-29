@@ -35,7 +35,9 @@ import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
+import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.state.InterViewStateList
+import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.ui.screen.detailscreen.DetailScreen
 import com.walkS.yiprogress.ui.widget.HomeInterviewList
 import com.walkS.yiprogress.ui.widget.MinePage
@@ -45,6 +47,7 @@ import com.walkS.yiprogress.ui.widget.OfferListPage
 import com.walkS.yiprogress.ui.widget.OfferPageScreen
 import com.walkS.yiprogress.ui.widget.PartialBottomSheet
 import com.walkS.yiprogress.ui.widget.TotalDialog
+import com.walkS.yiprogress.utils.RandomUtils
 import kotlinx.coroutines.launch
 
 
@@ -80,6 +83,7 @@ fun App() {
     val snackState = viewModel.homeSnackBarHostState.collectAsState()
     val navi = rememberNavController()
     val currentRoute = navi.currentBackStackEntryAsState().value?.destination?.route
+
     Scaffold(
         topBar = {
             NavigationTopBar(navi, currentRoute)
@@ -106,7 +110,7 @@ fun App() {
                             Profile.HOME_INTERVIEW_LIST_PAGE -> HomeScreen(viewModel)
                             Profile.HOME_OFFER_LIST_PAGE -> OfferListPage(viewModel)
                             Profile.HOME_MINE_PAGE -> MinePage()
-                            Profile.DETAIL_INTERVIEW -> DetailScreen(viewModel)
+                            Profile.DETAIL_INTERVIEW -> DetailScreen(viewModel, )
                             Profile.DETAIL_OFFER -> OfferPageScreen(
                                 navHostController = navi,
                                 viewModel = viewModel

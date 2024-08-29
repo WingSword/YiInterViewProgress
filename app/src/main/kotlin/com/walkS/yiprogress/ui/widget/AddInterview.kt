@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +58,12 @@ import com.walkS.yiprogress.utils.RandomUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddInterView(vm: MainViewModel) {
-    val state by remember { mutableStateOf(FormState()) }
-    val formList = listOf(
+fun AddInterView(
+    vm: MainViewModel,
+    formState: FormState,
+    selectInterViewState: MutableState<String>
+) {
+     val formList = listOf(
         TextInputField(name = "companyName", label = "公司", validators = listOf(Required)),
         TextInputField(name = "department", label = "部门", validators = listOf(Required)),
         TextInputField(name = "job", label = "岗位", validators = listOf(Required)),
@@ -67,16 +71,9 @@ fun AddInterView(vm: MainViewModel) {
         TextInputField(name = "sal", label = "薪资", validators = listOf(Required)),
     )
 
-
     val options = arrayOf("待面试", "已面试", "已通过", "未通过")
-    val selectInterViewState = remember {
-        mutableStateOf(options[0])
-    }
-    var showDateTimePicker by remember { mutableStateOf(false) }
 
-    val interviewTime = remember {
-        mutableStateOf("")
-    }
+    var showDateTimePicker by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.size(300.dp, 500.dp)) {
         LazyColumn(
@@ -98,7 +95,7 @@ fun AddInterView(vm: MainViewModel) {
                 )
                 if (selectInterViewState.value == "待面试") {
                     Button(onClick = { showDateTimePicker = true }) {
-                        Text("面试时间：" + interviewTime.value)
+                        Text("面试时间：" + vm.interviewEditViewState["interviewTime"]?.collectAsState()?.value)
                     }
                 }
             }
@@ -107,27 +104,28 @@ fun AddInterView(vm: MainViewModel) {
 
     if (showDateTimePicker) {
         AdvancedTimePickerExample(onConfirm = { it, time ->
-            interviewTime.value = time
+            vm.handleInterViewIntent(InterViewIntent.InterviewDataChanged("interviewTime",time))
             showDateTimePicker = false
         }) {
             showDateTimePicker = false
         }
     }
+    formState.fields = formList
     TextButton(
         modifier = Modifier.fillMaxWidth(),
         onClick = {
-            state.fields = formList
-            if (state.validate()) {
-                val data=state.getData()
-                val interState=InterviewState(
+            formState.fields = formList
+            if (formState.validate()) {
+                val data = formState.getData()
+                val interState = InterviewState(
                     itemId = RandomUtils.optInterViewRandomId(),
-                    companyName = data.get("companyName").toString() ,
+                    companyName = data.get("companyName").toString(),
                     department = data.get("department").toString(),
                     job = data.get("job").toString(),
-                    city = data.get("city").toString() ,
+                    city = data.get("city").toString(),
                     interviewStatus = selectInterViewState.value,
-                    interviewTime = interviewTime.value,
-                    salary = data.get("sal") as? Double ?:0.0
+                    interviewTime = vm.interviewEditViewState["interviewTime"]?.value.toString(),
+                    salary = data.get("sal") as? Double ?: 0.0
                 )
                 vm.handleInterViewIntent(InterViewIntent.NewInterView(interState))
             }
