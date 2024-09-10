@@ -47,7 +47,7 @@ fun YiProgressTheme(
         }
 
         darkTheme -> Colors.DarkColorScheme
-        else -> Colors.LightColorScheme
+        else -> ChineseColor.LightColorScheme
     }
 
     MaterialTheme(

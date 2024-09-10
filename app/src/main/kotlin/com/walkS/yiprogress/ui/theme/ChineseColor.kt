@@ -1,5 +1,7 @@
 package com.walkS.yiprogress.ui.theme
 
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -96,4 +98,34 @@ object ChineseColor {
     val OuSe = Color(0xFFedd1d8) // 藕色
     val OuHeSe = Color(0xFFe4c6d0) // 藕荷色
     val TuoSe = Color(0xFFa88462) // 驼色
+
+
+
+    val LightColorScheme = lightColorScheme(
+        primary = Lan,
+        onPrimary = Color.Black,
+        primaryContainer = WeiLan,
+        onPrimaryContainer = ShuiSe,
+        secondary = AiLv,
+        onSecondary = Color.Black,
+        secondaryContainer = QingBai,
+        onSecondaryContainer = ShuiSe,
+        tertiary = MoHui,
+        onTertiary = Color.Black,
+        tertiaryContainer = ShuangSe,
+        onTertiaryContainer = ShuiSe,
+        error = FeiSe,
+        onError = Color.Black,
+        errorContainer = YinHong ,
+        onErrorContainer = ShuiSe,
+        background = Gao,
+        onBackground = Color.Black,
+        surface = XueBai,
+        onSurface = Color.Black,
+        surfaceVariant = Huise,
+        onSurfaceVariant = ShuiSe,
+        outline = LanHuise
+    )
+
+
 }

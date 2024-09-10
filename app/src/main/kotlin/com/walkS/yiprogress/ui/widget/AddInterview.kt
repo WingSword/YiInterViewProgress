@@ -1,23 +1,24 @@
 package com.walkS.yiprogress.ui.widget
 
+
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.sharp.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,28 +26,33 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.walkS.yiprogress.MainViewModel
-import com.walkS.yiprogress.intent.InterViewIntent
-import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.state.InterviewState
-import com.walkS.yiprogress.ui.field.Required
-import com.walkS.yiprogress.ui.field.TextInputField
-import com.walkS.yiprogress.ui.theme.ChineseColor
-import com.walkS.yiprogress.utils.RandomUtils
+import com.walkS.yiprogress.ui.widget.button.CommonTextButton
+import com.walkS.yiprogress.ui.widget.picker.DateType
+import com.walkS.yiprogress.ui.widget.picker.TimeType
+import com.walkS.yiprogress.ui.widget.picker.WeDatePicker
+import com.walkS.yiprogress.ui.widget.picker.WePicker
+import com.walkS.yiprogress.ui.widget.picker.WeTimePicker
+import com.walkS.yiprogress.ui.widget.steps.HorizontalTextLabelStep
+import java.time.LocalDate
+import java.time.LocalTime
 
 /**
  * Project YiProgress
@@ -60,77 +66,137 @@ import com.walkS.yiprogress.utils.RandomUtils
 @Composable
 fun AddInterView(
     vm: MainViewModel,
-    formState: FormState,
+    interviewState: MutableState<InterviewState>,
     selectInterViewState: MutableState<String>
 ) {
-     val formList = listOf(
-        TextInputField(name = "companyName", label = "公司", validators = listOf(Required)),
-        TextInputField(name = "department", label = "部门", validators = listOf(Required)),
-        TextInputField(name = "job", label = "岗位", validators = listOf(Required)),
-        TextInputField(name = "city", label = "工作城市", validators = listOf(Required)),
-        TextInputField(name = "sal", label = "薪资", validators = listOf(Required)),
-    )
+    val isCommit = remember { mutableStateOf(false) }
 
-    val options = arrayOf("待面试", "已面试", "已通过", "未通过")
+    val options = listOf("待面试", "已面试", "已通过", "未通过")
+    val selectedIndex = mutableStateOf(0)
+    var showTimePicker by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showCityPicker by remember { mutableStateOf(false) }
+    var showSalaryPicker by remember { mutableStateOf(false) }
 
-    var showDateTimePicker by remember { mutableStateOf(false) }
-
-    Surface(modifier = Modifier.size(300.dp, 500.dp)) {
+    val company = mutableStateOf("")
+    var selectedTime = remember { LocalTime.now() }
+    var selectedDate = remember { LocalDate.now() }
+    var selectedDateText = remember { "选择面试日期" }
+    var selectedTimeText = remember { "选择面试时间" }
+    Surface(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(4.dp)
-                .scrollable(state = rememberScrollState(), orientation = Orientation.Vertical)
+                .scrollable(state = rememberScrollState(), orientation = Orientation.Vertical),
         ) {
+
             item {
-                Text(text = "新增一个面试")
-            }
-            items(formList.size) {
-                formList[it].Content()
-            }
-            item {
-                BaseDropDownMenu(
-                    label = "面试状态", selectInterViewState,
-                    options = options
+                SingleInterViewInput(
+                    company,
+                    lbl = "公司名称",
+                    isRequired = true,
+                    isCommit = isCommit.value
                 )
-                if (selectInterViewState.value == "待面试") {
-                    Button(onClick = { showDateTimePicker = true }) {
-                        Text("面试时间：" + vm.interviewEditViewState["interviewTime"]?.collectAsState()?.value)
+            }
+            item {
+                SingleInterViewInput(
+                    company,
+                    lbl = "岗位名称",
+                    isRequired = true,
+                    isCommit = isCommit.value
+                )
+            }
+            item {
+                SingleInterViewInput(
+                    company,
+                    lbl = "部门",
+                    isRequired = false,
+                    isCommit = isCommit.value,
+                )
+
+
+            }
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 5.dp)
+                ) {
+                    CommonTextButton(
+                        "薪资", onClick = { showSalaryPicker = true },
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    CommonTextButton(
+                        "工作城市", onClick = { showCityPicker = true },
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                }
+
+            }
+            item {
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .background(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                            .fillParentMaxWidth()
+                            .padding(vertical = 10.dp)
+                    ) {
+                        HorizontalTextLabelStep(options, selectedIndex.value, onItemClick = {
+                            selectedIndex.value = it
+                        })
+                    }
+                    AnimatedVisibility(options[selectedIndex.value].contains("面试")) {
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                CommonTextButton(
+                                    selectedDateText,
+                                    onClick = { showDatePicker = true },
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+
+                                CommonTextButton(
+                                    selectedTimeText,
+                                    onClick = { showTimePicker = true },
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            }
+                            SingleInterViewInput(
+                                company,
+                                lbl = "面试地点",
+                                isRequired = false,
+                                isCommit = isCommit.value,
+                            )
+                        }
                     }
                 }
-            }
-        }
-    }
 
-    if (showDateTimePicker) {
-        AdvancedTimePickerExample(onConfirm = { it, time ->
-            vm.handleInterViewIntent(InterViewIntent.InterviewDataChanged("interviewTime",time))
-            showDateTimePicker = false
-        }) {
-            showDateTimePicker = false
-        }
-    }
-    formState.fields = formList
-    TextButton(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = {
-            formState.fields = formList
-            if (formState.validate()) {
-                val data = formState.getData()
-                val interState = InterviewState(
-                    itemId = RandomUtils.optInterViewRandomId(),
-                    companyName = data.get("companyName").toString(),
-                    department = data.get("department").toString(),
-                    job = data.get("job").toString(),
-                    city = data.get("city").toString(),
-                    interviewStatus = selectInterViewState.value,
-                    interviewTime = vm.interviewEditViewState["interviewTime"]?.value.toString(),
-                    salary = data.get("sal") as? Double ?: 0.0
-                )
-                vm.handleInterViewIntent(InterViewIntent.NewInterView(interState))
+
             }
-        }) {
-        Text("完成")
+
+        }
+        WeDatePicker(
+            visible = showDatePicker,
+            value = selectedDate,
+            type = DateType.DAY,
+            onCancel = { showDatePicker = false }) {
+            selectedDate = it
+            selectedDateText = it.toString()
+        }
+        WeTimePicker(
+            visible = showTimePicker,
+            value = selectedTime,
+            type = TimeType.MINUTE,
+            onCancel = { showTimePicker = false },
+            onChange = {
+                selectedTime = it
+                selectedTimeText = it.toString()
+            })
+
     }
 }
 
@@ -195,3 +261,54 @@ fun CommonSingleInputText(
     )
 }
 
+
+@Composable
+fun SingleInterViewInput(
+    text: MutableState<String>,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    keyboardType: KeyboardType = KeyboardType.Text,
+    hasError: Boolean = false,
+    inputLines: Int = 1,
+    lbl: String = "",
+    isRequired: Boolean = false,
+    isCommit: Boolean = false
+) {
+    OutlinedTextField(
+        value = text.value,
+        onValueChange = {
+            text.value = it
+        },
+        isError = isCommit && (hasError || (isRequired && text.value.isEmpty())),
+        maxLines = inputLines,
+        textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
+        label = {
+            Text(
+                buildString {
+                    append(lbl)
+                    if (isRequired) append(" *") // 显示必填字段标识
+                }, style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        singleLine = inputLines == 1,
+        modifier = modifier.padding(horizontal = 4.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = Color.Transparent,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+        ),
+        shape = CircleShape,
+
+        )
+}
+
+@Preview(backgroundColor = 0xffffffff)
+@Composable
+fun InputPreview() {
+    SingleInterViewInput(mutableStateOf("5555"), lbl = "测试")
+}

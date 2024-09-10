@@ -17,7 +17,9 @@ import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.state.FormState
+import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.ui.widget.AddInterView
+import com.walkS.yiprogress.utils.RandomUtils
 
 
 @Composable
@@ -29,17 +31,11 @@ fun DetailScreen(viewModel: MainViewModel) {
     val selectInterViewState = remember {
         mutableStateOf("待面试")
     }
-    viewModel.handleInterViewIntent(
-        InterViewIntent.InterviewDataChanged(
-            "interviewStatus",
-            selectInterViewState.value
-        ))
-
 
 
     AddInterView(
         viewModel,
-        formState =FormState(),
+        interviewState = mutableStateOf( InterviewState(itemId = 0L, companyName = "")),
         selectInterViewState
     )
 }
