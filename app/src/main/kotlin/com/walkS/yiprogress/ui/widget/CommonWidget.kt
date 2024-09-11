@@ -140,15 +140,15 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?) {
                 IconButton(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .border(width = 2.dp, color = Color.Black, shape = CircleShape),
+                        .border(width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape),
                     onClick = {
                         navi.popBackStack()
                     },
                     colors = IconButtonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                         disabledContentColor = Color.Red,
-                        disabledContainerColor = Color.Black
+                        disabledContainerColor =MaterialTheme.colorScheme.secondaryContainer
                     )
                 ) {
                     Icon(
@@ -192,7 +192,7 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?) {
 @Composable
 fun TopActionButton(isExtend: Boolean, onActionButtonClick: () -> Unit) {
     val backgroundColor by animateColorAsState(
-        targetValue = if (isExtend) Color.Black else Color.Transparent,
+        targetValue = if (isExtend) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         label = "background color"
     )
     Row(
@@ -203,7 +203,7 @@ fun TopActionButton(isExtend: Boolean, onActionButtonClick: () -> Unit) {
                 onClick = { onActionButtonClick.invoke() }
             )
             .background(color = backgroundColor, shape = CircleShape)
-            .padding(end = 4.dp, start = 16.dp, top = 2.dp),
+            .padding(end = 4.dp, start = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
 
@@ -213,22 +213,23 @@ fun TopActionButton(isExtend: Boolean, onActionButtonClick: () -> Unit) {
                 modifier = Modifier.padding(end = 4.dp),
                 text = "Add",
                 textAlign = TextAlign.Center,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
         IconButton(
             modifier = Modifier
                 .border(
                     width = 2.dp,
-                    color = Color.Black,
+                    color = if (!isExtend) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondary,
                     shape = CircleShape
                 ),
             onClick = {
                 onActionButtonClick.invoke()
             },
             colors = IconButtonColors(
-                containerColor = if (!isExtend) Color(0xF3F6F8FF) else Color.Black,
-                contentColor = if (!isExtend) Color.Black else Color.White,
+                containerColor = if (!isExtend) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = if (!isExtend) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer,
+
                 disabledContentColor = Color.Red,
                 disabledContainerColor = Color.Black,
             ),

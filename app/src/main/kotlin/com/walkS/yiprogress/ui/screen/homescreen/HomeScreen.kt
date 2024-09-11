@@ -101,7 +101,7 @@ fun App() {
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             NavHost(navi, startDestination = Profile.HOME_INTERVIEW_LIST_PAGE.route) {
                 Profile.entries.forEach { screen ->

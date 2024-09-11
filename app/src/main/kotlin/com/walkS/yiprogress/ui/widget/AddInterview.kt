@@ -2,16 +2,19 @@ package com.walkS.yiprogress.ui.widget
 
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,7 +32,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,20 +42,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.state.InterviewState
+import com.walkS.yiprogress.ui.digitalkeyboard.DigitalKeyboardConfirmOptions
+import com.walkS.yiprogress.ui.digitalkeyboard.WeDigitalKeyboard
 import com.walkS.yiprogress.ui.widget.button.CommonTextButton
 import com.walkS.yiprogress.ui.widget.picker.DateType
 import com.walkS.yiprogress.ui.widget.picker.TimeType
 import com.walkS.yiprogress.ui.widget.picker.WeDatePicker
-import com.walkS.yiprogress.ui.widget.picker.WePicker
 import com.walkS.yiprogress.ui.widget.picker.WeTimePicker
 import com.walkS.yiprogress.ui.widget.steps.HorizontalTextLabelStep
+import com.walkS.yiprogress.utils.clickableWithoutRipple
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -69,25 +82,37 @@ fun AddInterView(
     interviewState: MutableState<InterviewState>,
     selectInterViewState: MutableState<String>
 ) {
+    val company = mutableStateOf("")
+    var salary = mutableStateOf("")
     val isCommit = remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
     val options = listOf("待面试", "已面试", "已通过", "未通过")
     val selectedIndex = mutableStateOf(0)
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showCityPicker by remember { mutableStateOf(false) }
-    var showSalaryPicker by remember { mutableStateOf(false) }
+    var showSalaryUnit by remember { mutableStateOf("K") }
+    var showDigitalKeyBoard by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
-    val company = mutableStateOf("")
+    var interviewNote by remember { mutableStateOf("") }
     var selectedTime = remember { LocalTime.now() }
     var selectedDate = remember { LocalDate.now() }
     var selectedDateText = remember { "选择面试日期" }
     var selectedTimeText = remember { "选择面试时间" }
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = Modifier
+        .fillMaxSize()
+        .clickableWithoutRipple {
+            // 请求焦点
+            if (showDigitalKeyBoard) {
+                focusManager.clearFocus()
+            }
+        }) {
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(4.dp)
+                .padding(horizontal = 4.dp)
                 .scrollable(state = rememberScrollState(), orientation = Orientation.Vertical),
         ) {
 
@@ -114,24 +139,56 @@ fun AddInterView(
                     isRequired = false,
                     isCommit = isCommit.value,
                 )
-
-
             }
             item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 5.dp)
-                ) {
-                    CommonTextButton(
-                        "薪资", onClick = { showSalaryPicker = true },
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                Row {
+                    SingleInterViewInput(
+                        salary,
+                        lbl = "薪资",
+                        isRequired = false,
+                        isCommit = isCommit.value,
+                        modifier = Modifier
+                            .weight(1f)
+                            .onFocusChanged {
+                                showDigitalKeyBoard = it.isFocused
+                            },
+                        readOnly = true,
+                        trailingIcon = {
+                            TextButton(
+                                modifier = Modifier.size(36.dp),
+                                shape = CircleShape,
+                                onClick = {
+                                    if (showDigitalKeyBoard) {
+                                        focusManager.clearFocus()
+                                    }
+                                    showSalaryUnit = if (showSalaryUnit == "K") {
+                                        "W"
+                                    } else {
+                                        "K"
+                                    }
+                                },
+                                border = BorderStroke(
+                                    2.dp,
+                                    if (showDigitalKeyBoard) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+                                ),
+                            ) {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    text = showSalaryUnit,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.SansSerif
+                                )
+                            }
+                        }
                     )
-                    CommonTextButton(
-                        "工作城市", onClick = { showCityPicker = true },
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                    SingleInterViewInput(
+                        modifier = Modifier.weight(1f),
+                        text = company,
+                        lbl = "工作城市",
+                        isRequired = false,
+                        isCommit = isCommit.value
                     )
                 }
-
             }
             item {
 
@@ -148,10 +205,16 @@ fun AddInterView(
                     ) {
                         HorizontalTextLabelStep(options, selectedIndex.value, onItemClick = {
                             selectedIndex.value = it
+                            if (showDigitalKeyBoard) {
+                                focusManager.clearFocus()
+                            }
                         })
                     }
                     AnimatedVisibility(options[selectedIndex.value].contains("面试")) {
-                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 CommonTextButton(
                                     selectedDateText,
@@ -165,12 +228,28 @@ fun AddInterView(
                                     color = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             }
-                            SingleInterViewInput(
-                                company,
-                                lbl = "面试地点",
-                                isRequired = false,
-                                isCommit = isCommit.value,
-                            )
+                            AnimatedVisibility(options[selectedIndex.value] == "待面试") {
+                                SingleInterViewInput(
+                                    company,
+                                    lbl = "面试地点",
+                                    isRequired = false,
+                                    isCommit = isCommit.value,
+                                )
+                            }
+                            AnimatedVisibility(options[selectedIndex.value] != ("待面试")) {
+                                WeTextarea(
+                                    value = interviewNote, label = "面试摘要", onChange = {
+                                        interviewNote = it
+                                    }, modifier = Modifier
+                                        .padding(vertical = 16.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                            shape = MaterialTheme.shapes.large
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+
                         }
                     }
                 }
@@ -196,6 +275,23 @@ fun AddInterView(
                 selectedTime = it
                 selectedTimeText = it.toString()
             })
+
+        WeDigitalKeyboard(
+            visible = showDigitalKeyBoard,
+            value = salary.value,
+            onHide = {
+                if (showDigitalKeyBoard) {
+                    focusManager.clearFocus()
+                }
+            },
+            confirmButtonOptions = DigitalKeyboardConfirmOptions(
+                text = "确定",
+                color = MaterialTheme.colorScheme.primaryContainer
+            ),
+            onConfirm = {
+                showDigitalKeyBoard = false
+
+            }) { salary.value = it }
 
     }
 }
@@ -271,7 +367,10 @@ fun SingleInterViewInput(
     inputLines: Int = 1,
     lbl: String = "",
     isRequired: Boolean = false,
-    isCommit: Boolean = false
+    isCommit: Boolean = false,
+    readOnly: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = text.value,
@@ -289,9 +388,12 @@ fun SingleInterViewInput(
                 }, style = MaterialTheme.typography.bodyMedium
             )
         },
+        readOnly = readOnly,
         singleLine = inputLines == 1,
         modifier = modifier.padding(horizontal = 4.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        trailingIcon = trailingIcon,
+        leadingIcon = leadingIcon,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
