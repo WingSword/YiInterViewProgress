@@ -82,8 +82,10 @@ fun AddInterView(
     interviewState: MutableState<InterviewState>,
     selectInterViewState: MutableState<String>
 ) {
+
     val company = mutableStateOf("")
     var salary = mutableStateOf("")
+    val interviewName= mutableStateOf("")
     val isCommit = remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
@@ -189,6 +191,36 @@ fun AddInterView(
                         isCommit = isCommit.value
                     )
                 }
+            }
+            item{
+                SingleInterViewInput(
+                    salary,
+                    lbl = "面试轮次",
+                    isRequired = false,
+                    isCommit = isCommit.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    leadingIcon = {
+                        TextButton(
+                            modifier = Modifier.size(36.dp),
+                            shape = CircleShape,
+                            onClick = {
+
+                            },
+                            border = BorderStroke(
+                                2.dp,
+                                if (showDigitalKeyBoard) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+                            ),
+                        ) {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = showSalaryUnit,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.SansSerif
+                            )
+                        }
+                    }
+                )
             }
             item {
 
