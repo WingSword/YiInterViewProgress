@@ -86,7 +86,7 @@ fun App() {
 
     Scaffold(
         topBar = {
-            NavigationTopBar(navi, currentRoute)
+            NavigationTopBar(navi, currentRoute,viewModel)
         },
         bottomBar = {
             NavigationBottomLayout(navi, currentRoute)

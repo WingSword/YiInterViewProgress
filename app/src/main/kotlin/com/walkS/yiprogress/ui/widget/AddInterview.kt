@@ -36,12 +36,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.walkS.yiprogress.MainViewModel
+import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.ui.digitalkeyboard.DigitalKeyboardConfirmOptions
 import com.walkS.yiprogress.ui.digitalkeyboard.WeDigitalKeyboard
@@ -79,13 +82,15 @@ import java.time.LocalTime
 @Composable
 fun AddInterView(
     vm: MainViewModel,
-    interviewState: MutableState<InterviewState>,
+    interviewState: InterviewState,
     selectInterViewState: MutableState<String>
 ) {
-    val company = mutableStateOf("")
+
     var salary = mutableStateOf("")
-    val isCommit = remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
+    val commitState = vm.isInterviewEditSave.collectAsState()
+    val isCommit = commitState.value == -1
+
+
 
     val options = listOf("待面试", "已面试", "已通过", "未通过")
     val selectedIndex = mutableStateOf(0)
@@ -118,35 +123,41 @@ fun AddInterView(
 
             item {
                 SingleInterViewInput(
-                    company,
-                    lbl = "公司名称",
+                    interviewState.companyName,
+                    lbl = "公司",
                     isRequired = true,
-                    isCommit = isCommit.value
-                )
+                    isCommit = isCommit,
+                ) {
+                    vm.handleInterViewIntent(InterViewIntent.InterviewDataChanged("公司", it))
+                }
             }
             item {
                 SingleInterViewInput(
-                    company,
-                    lbl = "岗位名称",
+                    interviewState.job,
+                    lbl = "岗位",
                     isRequired = true,
-                    isCommit = isCommit.value
-                )
+                    isCommit = isCommit
+                ) {
+                    vm.handleInterViewIntent(InterViewIntent.InterviewDataChanged("岗位", it))
+                }
             }
             item {
                 SingleInterViewInput(
-                    company,
+                    interviewState.department,
                     lbl = "部门",
                     isRequired = false,
-                    isCommit = isCommit.value,
-                )
+                    isCommit = isCommit,
+                ) {
+                    vm.handleInterViewIntent(InterViewIntent.InterviewDataChanged("部门", it))
+                }
             }
             item {
                 Row {
                     SingleInterViewInput(
-                        salary,
+                        interviewState.salary.toString(),
                         lbl = "薪资",
                         isRequired = false,
-                        isCommit = isCommit.value,
+                        isCommit = isCommit,
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged {
@@ -166,6 +177,12 @@ fun AddInterView(
                                     } else {
                                         "K"
                                     }
+                                    vm.handleInterViewIntent(
+                                        InterViewIntent.InterviewDataChanged(
+                                            "薪资单位",
+                                            showSalaryUnit
+                                        )
+                                    )
                                 },
                                 border = BorderStroke(
                                     2.dp,
@@ -180,14 +197,23 @@ fun AddInterView(
                                 )
                             }
                         }
-                    )
+                    ) {
+
+                    }
                     SingleInterViewInput(
                         modifier = Modifier.weight(1f),
-                        text = company,
+                        text = interviewState.city,
                         lbl = "工作城市",
                         isRequired = false,
-                        isCommit = isCommit.value
-                    )
+                        isCommit = isCommit
+                    ) {
+                        vm.handleInterViewIntent(
+                            InterViewIntent.InterviewDataChanged(
+                                "城市",
+                                it
+                            )
+                        )
+                    }
                 }
             }
             item {
@@ -230,27 +256,35 @@ fun AddInterView(
                             }
                             AnimatedVisibility(options[selectedIndex.value] == "待面试") {
                                 SingleInterViewInput(
-                                    company,
+                                    interviewState.department,
                                     lbl = "面试地点",
                                     isRequired = false,
-                                    isCommit = isCommit.value,
-                                )
+                                    isCommit = isCommit,
+                                ) {
+                                    InterViewIntent.InterviewDataChanged(
+                                        "面试地点",
+                                        it
+                                    )
+                                }
                             }
-                            AnimatedVisibility(options[selectedIndex.value] != ("待面试")) {
-                                WeTextarea(
-                                    value = interviewNote, label = "面试摘要", onChange = {
-                                        interviewNote = it
-                                    }, modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.surfaceVariant,
-                                            shape = MaterialTheme.shapes.large
-                                        )
-                                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                                )
-                            }
-
                         }
+                    }
+                    AnimatedVisibility(options[selectedIndex.value] != ("待面试")) {
+                        WeTextarea(
+                            value = interviewNote, label = "面试摘要", onChange = {
+                                interviewNote = it
+                                InterViewIntent.InterviewDataChanged(
+                                    "备注",
+                                    it
+                                )
+                            }, modifier = Modifier
+                                .padding(vertical = 16.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = MaterialTheme.shapes.large
+                                )
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
                     }
                 }
 
@@ -360,7 +394,7 @@ fun CommonSingleInputText(
 
 @Composable
 fun SingleInterViewInput(
-    text: MutableState<String>,
+    text: String?,
     modifier: Modifier = Modifier.fillMaxWidth(),
     keyboardType: KeyboardType = KeyboardType.Text,
     hasError: Boolean = false,
@@ -371,13 +405,14 @@ fun SingleInterViewInput(
     readOnly: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        value = text.value,
+        value = text ?: "",
         onValueChange = {
-            text.value = it
+            onValueChange(it)
         },
-        isError = isCommit && (hasError || (isRequired && text.value.isEmpty())),
+        isError = isCommit && (hasError || (isRequired && text.isNullOrBlank())),
         maxLines = inputLines,
         textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
         label = {
@@ -385,7 +420,8 @@ fun SingleInterViewInput(
                 buildString {
                     append(lbl)
                     if (isRequired) append(" *") // 显示必填字段标识
-                }, style = MaterialTheme.typography.bodyMedium
+                }, style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 4.dp)
             )
         },
         readOnly = readOnly,
@@ -412,5 +448,5 @@ fun SingleInterViewInput(
 @Preview(backgroundColor = 0xffffffff)
 @Composable
 fun InputPreview() {
-    SingleInterViewInput(mutableStateOf("5555"), lbl = "测试")
+
 }

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.kapt)
     alias(libs.plugins.compose.compiler)
+    alias (libs.plugins.snapshort.sqldelight)
 }
 
 android {
@@ -68,11 +69,12 @@ dependencies {
     implementation (libs.com.google.accompanist.accompanist.pager2) // Pager
     implementation (libs.accompanist.pager.indicators) // Pager Indicators
     implementation(libs.accompanist.drawablepainter)
-    implementation (libs.androidx.room.room.runtime)
+
     implementation(libs.androidx.appcompat.resources)
-    kapt (libs.androidx.room.compiler)
+
     implementation(libs.androidx.fragment.ktx)
 
+    implementation(libs.sqldelight.runtime)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -87,5 +89,12 @@ kapt {
     generateStubs = true
     arguments {
         arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+sqldelight {
+    databases {
+        create("HistoryDatabase") {
+            packageName.set("com.walkS.yiprogress.database")
+        }
     }
 }

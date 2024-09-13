@@ -13,7 +13,8 @@ sealed class InterViewIntent {
     data object FetchData : InterViewIntent()
     data object FetchDataList : InterViewIntent()
     data object IsLoading : InterViewIntent()
-    data class NewInterView(val formState: InterviewState) : InterViewIntent()
-    data class InterviewDataChanged(val key:String,val data:String):InterViewIntent()
+    data object Save:InterViewIntent()
+    data object NewInterView : InterViewIntent()
+    data class InterviewDataChanged(val key: String, val data: Any) : InterViewIntent()
 
 }
