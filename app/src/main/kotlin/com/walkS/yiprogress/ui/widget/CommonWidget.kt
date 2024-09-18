@@ -62,6 +62,7 @@ import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_INTERVIEW
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
 import com.walkS.yiprogress.ui.theme.ChineseColor
@@ -132,7 +133,7 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationTopBar(navi: NavController, currentRoute: String?) {
+fun NavigationTopBar(navi: NavController, currentRoute: String?,viewModel: MainViewModel) {
     CenterAlignedTopAppBar(
         title = { },
         navigationIcon = {
@@ -162,6 +163,7 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?) {
             TopActionButton(isHomeScreenPage(currentRoute)) {
                 val screen = navi.currentBackStackEntry?.destination
                 if (!isHomeScreenPage(currentRoute)) {
+                    viewModel.handleInterViewIntent(InterViewIntent.NewInterView)
                     navi.popBackStack()
                 } else {
                     when (screen?.route) {

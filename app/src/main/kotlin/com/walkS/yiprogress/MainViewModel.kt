@@ -5,25 +5,19 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.walkS.yiprogress.db.AppDatabase
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
-import com.walkS.yiprogress.repository.InterviewRepository
-import com.walkS.yiprogress.repository.OfferRepository
 import com.walkS.yiprogress.state.InterViewStateList
+import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.state.OfferState
 import com.walkS.yiprogress.state.OfferStateList
 import com.walkS.yiprogress.utils.RandomUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainViewModel : ViewModel() {
 
@@ -44,8 +38,11 @@ class MainViewModel : ViewModel() {
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
 
-    private val _interviewEditViewState = mutableMapOf<String, MutableStateFlow<String>>()
-    val interviewEditViewState: Map<String, StateFlow<String>> = _interviewEditViewState
+    private val _interviewEditViewState =
+        MutableStateFlow(InterviewState(RandomUtils.optInterViewRandomId(), ""))
+    val interviewEditViewState: StateFlow<InterviewState> = _interviewEditViewState
+
+    val isInterviewEditSave = MutableStateFlow(0)
 
 
     companion object {
@@ -54,20 +51,20 @@ class MainViewModel : ViewModel() {
         const val DIALOG_TYPE_SHOW_ADD_OFFER = 2
     }
 
-    private val interviewRepository: InterviewRepository by lazy {
-        InterviewRepository(
-            AppDatabase.getInstance(
-                MainApplication.appContext
-            )!!.interViewDao()
-        )
-    }
-    private val offerRepository: OfferRepository by lazy {
-        OfferRepository(
-            AppDatabase.getInstance(
-                MainApplication.appContext
-            )!!.offerDao()
-        )
-    }
+//    private val interviewRepository: InterviewRepository by lazy {
+//        InterviewRepository(
+//            AppDatabase.getInstance(
+//                MainApplication.appContext
+//            )!!.interViewDao()
+//        )
+//    }
+//    private val offerRepository: OfferRepository by lazy {
+//        OfferRepository(
+//            AppDatabase.getInstance(
+//                MainApplication.appContext
+//            )!!.offerDao()
+//        )
+//    }
 
     // 处理意图
     fun handleMainIntent(intent: MainIntent) {
@@ -100,23 +97,42 @@ class MainViewModel : ViewModel() {
             }
 
             is InterViewIntent.NewInterView -> {
-                viewModelScope.launch {
-                    val result =
-                        async(Dispatchers.IO) { interviewRepository.upsertInterview(intent.formState) }.await()
+                if (isInterviewEditSave.value != 1) {
+                    isInterviewEditSave.value = -1
+                }
 
-                    if (result == intent.formState.itemId) {
-                        _isShowViewDialog.value = DIALOG_TYPE_DISMISS
-                    }
+                viewModelScope.launch {
+//                    val result =
+//                        async(Dispatchers.IO) {
+//                            interviewRepository.upsertInterview(
+//                                interviewEditViewState.value
+//                            )
+//                        }.await()
+//
+//                    if (result == interviewEditViewState.value.itemId) {
+//                        _isShowViewDialog.value = DIALOG_TYPE_DISMISS
+//                    }
                 }
             }
 
             is InterViewIntent.InterviewDataChanged -> {
-                if (_interviewEditViewState[intent.key] == null) {
-                    _interviewEditViewState[intent.key] = MutableStateFlow(intent.data)
-                } else {
-                    _interviewEditViewState[intent.key]!!.value  = intent.data
-                }
+                isInterviewEditSave.value = 0
+                interviewEditDataChange(intent.key, intent.data)
             }
+
+            InterViewIntent.Save -> {}
+        }
+    }
+
+    fun interviewEditDataChange(key: String, data: Any) {
+        when(key){
+            "部门"->_interviewEditViewState.value = _interviewEditViewState.value.copy(department = data.toString())
+            "岗位"->_interviewEditViewState.value = _interviewEditViewState.value.copy(job = data.toString())
+            "城市"->_interviewEditViewState.value = _interviewEditViewState.value.copy(city = data.toString())
+            "公司"->_interviewEditViewState.value = _interviewEditViewState.value.copy(companyName = data.toString())
+            "薪资"->_interviewEditViewState.value = _interviewEditViewState.value.copy(salary = data.toString().toDouble())
+            "薪资单位"->_interviewEditViewState.value = _interviewEditViewState.value.copy(salaryUnit = data.toString())
+
         }
     }
 
@@ -164,17 +180,17 @@ class MainViewModel : ViewModel() {
 
                 viewModelScope.launch {
                     try {
-                        val result =
-                            async(Dispatchers.IO) { offerRepository.upsertOffer(offerState) }.await()
-                        if (result == offerState.offerId) {
-                            _isShowViewDialog.value = DIALOG_TYPE_DISMISS
-                            val list = _offerListState.value.list.toMutableList()
-                            list.add(offerState)
-                            _offerListState.value = _offerListState.value.copy(
-                                isRefreshing = false,
-                                list = list
-                            )
-                        }
+//                        val result =
+//                            async(Dispatchers.IO) { offerRepository.upsertOffer(offerState) }.await()
+//                        if (result == offerState.offerId) {
+//                            _isShowViewDialog.value = DIALOG_TYPE_DISMISS
+//                            val list = _offerListState.value.list.toMutableList()
+//                            list.add(offerState)
+//                            _offerListState.value = _offerListState.value.copy(
+//                                isRefreshing = false,
+//                                list = list
+//                            )
+//                        }
                     } catch (e: Exception) {
                         // 异常处理，例如记录日志或向用户显示错误消息
                         Log.e("OfferViewModel", "Failed to upsert interview", e)
@@ -185,17 +201,17 @@ class MainViewModel : ViewModel() {
             }
 
             OfferIntent.fetchOfferList -> {
-                _offerListState.value = _offerListState.value.copy(isRefreshing = true)
+                //_offerListState.value = _offerListState.value.copy(isRefreshing = true)
                 viewModelScope.launch {
                     try {
-                        offerRepository.offers.collectLatest { offerList ->
-                            withContext(Dispatchers.Main) {
-                                _offerListState.value = _offerListState.value.copy(
-                                    isRefreshing = false,
-                                    list = offerList
-                                )
-                            }
-                        }
+//                        offerRepository.offers.collectLatest { offerList ->
+//                            withContext(Dispatchers.Main) {
+//                                _offerListState.value = _offerListState.value.copy(
+//                                    isRefreshing = false,
+//                                    list = offerList
+//                                )
+//                            }
+//                        }
                     } catch (e: Exception) {
                         // 异常处理
                         Log.e("OfferViewModel", "Failed to fetch offer list", e)
@@ -210,23 +226,23 @@ class MainViewModel : ViewModel() {
     }
 
     private fun fetchData() {
-        _interviewListState.value = _interviewListState.value.copy(isFreshing = true)
+        //_interviewListState.value = _interviewListState.value.copy(isFreshing = true)
 
         viewModelScope.launch(Dispatchers.IO) {
-            delay(1000)
-            interviewRepository.interviews.collect {
-                _interviewListState.value = _interviewListState.value.copy(
-                    isFreshing = false,
-                    list = it
-                )
-            }
+
+//            interviewRepository.interviews.collect {
+//                _interviewListState.value = _interviewListState.value.copy(
+//                    isFreshing = false,
+//                    list = it
+//                )
+//            }
         }
     }
 
     private fun saveDataToLocal() {
         viewModelScope.launch {
             for (data in listState.value.list) {
-                interviewRepository.upsertInterview(data)
+              //  interviewRepository.upsertInterview(data)
             }
         }
     }
