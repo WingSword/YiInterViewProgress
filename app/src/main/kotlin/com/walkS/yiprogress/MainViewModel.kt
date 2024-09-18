@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
+import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.state.InterViewStateList
 import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.state.OfferState
@@ -43,6 +44,10 @@ class MainViewModel : ViewModel() {
     val interviewEditViewState: StateFlow<InterviewState> = _interviewEditViewState
 
     val isInterviewEditSave = MutableStateFlow(0)
+
+    var offerDetailFormState=FormState()
+    private val _offerFormState= MutableStateFlow(OfferState(RandomUtils.optOfferRandomId(), ""))
+    val offerFormState: StateFlow<OfferState> = _offerFormState
 
 
     companion object {
@@ -136,12 +141,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    //offer
-    fun handleOfferIntent(intent: OfferIntent) {
+    fun handleOfferIntentForResult(intent: OfferIntent,onResult:(()->Boolean) ?=null){
         when (intent) {
             is OfferIntent.SubmitOfferForm -> {
                 // 数据验证
-                val formStateData = intent.formState.getData()
+                val formStateData = offerDetailFormState.getData()
                 val offerState = OfferState(
                     offerId = RandomUtils.optOfferRandomId(),
                     companyName = formStateData["companyName"].toString(),
@@ -223,6 +227,11 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    //offer
+    fun handleOfferIntent(intent: OfferIntent) {
+        handleOfferIntentForResult(intent,null)
     }
 
     private fun fetchData() {

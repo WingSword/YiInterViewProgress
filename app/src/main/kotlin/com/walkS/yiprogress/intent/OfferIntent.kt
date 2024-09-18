@@ -9,6 +9,6 @@ import com.walkS.yiprogress.state.FormState
  *
  **/
 sealed class OfferIntent {
-    data class SubmitOfferForm(val formState: FormState) : OfferIntent()
+    data object SubmitOfferForm : OfferIntent()
     data object fetchOfferList : OfferIntent()
 }

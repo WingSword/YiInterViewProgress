@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.walkS.yiprogress.ui.widget.SingleInterViewInput
 import java.util.regex.Pattern
 
 class TextInputField(
@@ -46,37 +47,18 @@ class TextInputField(
     @Composable
     override fun Content() {
         val isRequired = validators.contains(Required)
-        OutlinedTextField(
-            value = text,
-            onValueChange = {
+        SingleInterViewInput(
+            modifier = Modifier.padding(vertical = 8.dp),
+            lbl = lbl,
+            text = text,
+            onValueChange = { newText ->
+                text = newText
                 hideError()
-                text = it
             },
-            isError = hasError,
-            maxLines = inputLines,
-            textStyle = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
-            label = {
-                Text(
-                    buildString {
-                        append(lbl)
-                        if (isRequired) append(" *") // 显示必填字段标识
-                    }
-                )
-            },
-            singleLine = inputLines == 1,
-            modifier = Modifier
-                .padding(horizontal = 4.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.background,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                errorLabelColor = MaterialTheme.colorScheme.error,
-            ),
+            hasError = hasError,
+            keyboardType = keyboardType,
+            inputLines =  inputLines,
+            isRequired = isRequired
         )
     }
 

@@ -64,6 +64,7 @@ import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.Profile
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
+import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
 import com.walkS.yiprogress.ui.theme.ChineseColor
 
@@ -133,7 +134,7 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationTopBar(navi: NavController, currentRoute: String?,viewModel: MainViewModel) {
+fun NavigationTopBar(navi: NavController, currentRoute: String?, viewModel: MainViewModel) {
     CenterAlignedTopAppBar(
         title = { },
         navigationIcon = {
@@ -141,7 +142,11 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?,viewModel: MainV
                 IconButton(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .border(width = 2.dp, color = MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape),
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = CircleShape
+                        ),
                     onClick = {
                         navi.popBackStack()
                     },
@@ -149,7 +154,7 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?,viewModel: MainV
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                         disabledContentColor = Color.Red,
-                        disabledContainerColor =MaterialTheme.colorScheme.secondaryContainer
+                        disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer
                     )
                 ) {
                     Icon(
@@ -162,32 +167,40 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?,viewModel: MainV
         actions = {
             TopActionButton(isHomeScreenPage(currentRoute)) {
                 val screen = navi.currentBackStackEntry?.destination
-                if (!isHomeScreenPage(currentRoute)) {
-                    viewModel.handleInterViewIntent(InterViewIntent.NewInterView)
-                    navi.popBackStack()
-                } else {
-                    when (screen?.route) {
-                        Profile.HOME_OFFER_LIST_PAGE.route -> {
+
+                when (screen?.route) {
+                    Profile.HOME_OFFER_LIST_PAGE.route -> {
+                        navi.navigate(Profile.DETAIL_OFFER.route)
 //                                viewModel.handleMainIntent(
 //                                    MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_OFFER)
 //                                )
-                        }
+                    }
 
-                        Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
-                            navi.navigate(Profile.DETAIL_INTERVIEW.route)
+                    Profile.HOME_INTERVIEW_LIST_PAGE.route -> {
+                        navi.navigate(Profile.DETAIL_INTERVIEW.route)
 //                            viewModel.handleMainIntent(
 //                                MainIntent.OpenDialog(DIALOG_TYPE_SHOW_ADD_INTERVIEW)
 //                            )
+                    }
+
+                    Profile.DETAIL_INTERVIEW.route -> {
+                        viewModel.handleInterViewIntent(InterViewIntent.NewInterView)
+                    }
+
+                    Profile.DETAIL_OFFER.route -> {
+                        if(viewModel.offerDetailFormState.validate()){
+                            viewModel.handleOfferIntent(OfferIntent.SubmitOfferForm)
+                            navi.popBackStack()
                         }
                     }
                 }
             }
 
+
         },
         modifier = Modifier.padding(24.dp)
     )
 }
-
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -209,7 +222,7 @@ fun TopActionButton(isExtend: Boolean, onActionButtonClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
 
-    ) {
+        ) {
         AnimatedVisibility(isExtend) {
             Text(
                 modifier = Modifier.padding(end = 4.dp),

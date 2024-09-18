@@ -2,6 +2,7 @@ package com.walkS.yiprogress.ui.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -34,16 +35,15 @@ import com.walkS.yiprogress.ui.theme.ChineseColor
  **/
 @Composable
 fun OfferPageScreen(
-
     navHostController: NavHostController,
     viewModel: MainViewModel
 ) {
-
+    AddOfferView(viewModel)
 }
 
 @Composable
 fun AddOfferView(viewModel: MainViewModel) {
-    val state by remember { mutableStateOf(FormState()) }
+    val state =viewModel.offerDetailFormState
     val formList = listOf(
         TextInputField(name = "companyName", label = "公司", validators = listOf(Required)),
         TextInputField(name = "department", label = "部门", validators = listOf(Required)),
@@ -100,18 +100,10 @@ fun AddOfferView(viewModel: MainViewModel) {
 
         )
 
-    Surface(modifier = Modifier.size(300.dp, 500.dp)) {
+    Surface(modifier = Modifier.fillMaxSize()) {
         Form(state = state, fields = formList)
     }
-    TextButton(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = {
-            if (state.validate()) {
-                viewModel.handleOfferIntent(OfferIntent.SubmitOfferForm(state))
-            }
-        }) {
-        Text("完成")
-    }
+
 }
 
 @Composable
