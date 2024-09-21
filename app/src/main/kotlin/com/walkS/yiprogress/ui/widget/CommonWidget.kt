@@ -62,7 +62,6 @@ import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_INTERVIEW
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.Profile
-import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
@@ -134,7 +133,7 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationTopBar(navi: NavController, currentRoute: String?, viewModel: MainViewModel) {
+fun NavigationTopBar(navi: NavController, currentRoute: String?) {
     CenterAlignedTopAppBar(
         title = { },
         navigationIcon = {

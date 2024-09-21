@@ -1,8 +1,11 @@
 package com.walkS.yiprogress
 
 import android.app.Application
+import android.app.Fragment
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import com.walkS.yiprogress.db.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +26,7 @@ class MainApplication : Application() {
         super.onCreate()
         appContext = this.applicationContext
         CoroutineScope(Dispatchers.IO).launch {
-
+            AppDatabase.getInstance(applicationContext)
         }
     }
 }

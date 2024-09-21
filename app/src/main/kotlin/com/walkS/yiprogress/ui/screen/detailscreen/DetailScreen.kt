@@ -35,7 +35,7 @@ fun DetailScreen(viewModel: MainViewModel) {
 
     AddInterView(
         viewModel,
-        interviewState = viewModel.interviewEditViewState.collectAsState().value,
+        interviewState = mutableStateOf( InterviewState(itemId = 0L, companyName = "")),
         selectInterViewState
     )
 }

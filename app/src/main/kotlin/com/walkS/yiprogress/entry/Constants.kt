@@ -8,6 +8,4 @@ object Constants {
     const val PROGRESS_2 = 2
     const val PROGRESS_3 = 3
     const val PROGRESS_4 = 4
-
-
 }

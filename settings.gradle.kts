@@ -14,7 +14,6 @@ pluginManagement {
             kotlin("jvm") version "2.0.0"
             kotlin("js") version "2.0.0"
         }
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 dependencyResolutionManagement {
