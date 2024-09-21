@@ -74,8 +74,11 @@ dependencies {
 
     implementation(libs.androidx.fragment.ktx)
 
-    implementation(libs.sqldelight.runtime)
+    implementation (libs.krealmextensions)
 
+    // 对于 Single 和 Flowable 查询：
+    implementation (libs.rxjava)
+    implementation (libs.rxandroid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,12 +92,5 @@ kapt {
     generateStubs = true
     arguments {
         arg("room.schemaLocation", "$projectDir/schemas")
-    }
-}
-sqldelight {
-    databases {
-        create("HistoryDatabase") {
-            packageName.set("com.walkS.yiprogress.database")
-        }
     }
 }

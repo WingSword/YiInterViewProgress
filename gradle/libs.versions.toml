@@ -1,6 +1,6 @@
 [versions]
 accompanistDrawablepainter = "0.36.0"
-agp = "8.7.0-beta01"
+agp = "8.7.0-beta02"
 androidxRoomRuntime = "2.7.0-alpha05"
 googleAccompanistPagerVersion = "0.36.0"
 kotlin = "2.0.20"
@@ -10,6 +10,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxSerializationJson = "INSERT_LATEST_VERSION_HERE"
 kotlinxSerializationJsonVersion = "1.7.2"
+krealmextensions = "2.5.0"
 lifecycleRuntimeKtx = "2.8.2"
 activityCompose = "1.9.0"
 composeBom = "2024.06.00"
@@ -19,6 +20,8 @@ pagingRxjava2Version = "3.3.0"
 pagingRxjava3Version = "3.3.0"
 pagingGuavaVersion = "3.3.0"
 pagingComposeVersion = "3.3.0"
+rxjava = "2.1.16"
+rxandroid = "2.0.2"
 uiToolingPreviewDesktop = "1.7.0-beta04"
 utilcode = "1.30.7"
 fragmentKtx = "1.8.1"
@@ -53,12 +56,15 @@ androidx-material3-v130beta = { group = "androidx.compose.material3", name = "ma
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kotlinx-serialization-json-v170 = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJsonVersion" }
+krealmextensions = { module = "com.github.vicpinm:krealmextensions", version.ref = "krealmextensions" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingComposeVersion" }
 paging-guava = { module = "androidx.paging:paging-guava", version.ref = "pagingGuavaVersion" }
 paging-rxjava3 = { module = "androidx.paging:paging-rxjava3", version.ref = "pagingRxjava3Version" }
 paging-rxjava2 = { module = "androidx.paging:paging-rxjava2", version.ref = "pagingRxjava2Version" }
 paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommonVersion" }
 androidx-ui-tooling-preview-desktop = { group = "androidx.compose.ui", name = "ui-tooling-preview-desktop", version.ref = "uiToolingPreviewDesktop" }
+rxandroid = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxandroid" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
 utilcode = { module = "com.blankj:utilcode", version.ref = "utilcode" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }

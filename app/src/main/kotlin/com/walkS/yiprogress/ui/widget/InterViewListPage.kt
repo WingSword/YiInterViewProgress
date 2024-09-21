@@ -108,7 +108,7 @@ fun InterviewCard(state: InterviewState) {
         Text(text = state.job ?: "", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.weight(1f))
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = state.time ?: "", style = MaterialTheme.typography.labelMedium)
+            Text(text = state.createTime ?: "", style = MaterialTheme.typography.labelMedium)
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = state.interviewStatus.toString(),
@@ -146,7 +146,7 @@ fun interviewPreview() {
         interviewStatus = "面试中",
         progress = 1,
         progressNum = 5,
-        time = "2023-05-01 13:00",
+        createTime = "2023-05-01 13:00",
         info = "面试中"
     )
     InterviewCard(state = state)

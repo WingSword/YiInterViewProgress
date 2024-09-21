@@ -219,10 +219,10 @@ fun AddInterView(
             }
             item{
                 SingleInterViewInput(
-                    salary,
+                    vm.interviewEditViewState.collectAsState().value.salary.toString(),
                     lbl = "面试轮次",
                     isRequired = false,
-                    isCommit = isCommit.value,
+                    isCommit = isCommit,
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     leadingIcon = {
@@ -244,7 +244,12 @@ fun AddInterView(
                                 fontFamily = FontFamily.SansSerif
                             )
                         }
-                    }
+                    },
+                    keyboardType = TODO(),
+                    hasError = TODO(),
+                    inputLines = TODO(),
+                    trailingIcon = TODO(),
+                    onValueChange = TODO()
                 )
             }
             item {

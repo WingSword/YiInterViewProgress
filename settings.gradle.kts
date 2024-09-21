@@ -25,6 +25,7 @@ dependencyResolutionManagement {
     }
 }
 
+
 rootProject.name = "YiProgress"
 include(":app")
 include("desktop")
