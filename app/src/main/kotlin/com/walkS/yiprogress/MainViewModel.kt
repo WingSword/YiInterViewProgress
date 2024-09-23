@@ -6,6 +6,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.walkS.yiprogress.db.AppDatabase
+import com.walkS.yiprogress.entry.Constants
+import com.walkS.yiprogress.enum.PageOperation
 import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
@@ -13,6 +15,7 @@ import com.walkS.yiprogress.state.FormState
 import com.walkS.yiprogress.repository.InterviewRepository
 import com.walkS.yiprogress.repository.OfferRepository
 import com.walkS.yiprogress.state.InterViewStateList
+import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.state.OfferState
 import com.walkS.yiprogress.state.OfferStateList
 import com.walkS.yiprogress.utils.RandomUtils
@@ -45,13 +48,15 @@ class MainViewModel : ViewModel() {
     private val _homeSnackBarState = MutableStateFlow(SnackbarHostState())
     val homeSnackBarHostState: StateFlow<SnackbarHostState> = _homeSnackBarState
 
-    private val _interviewEditViewState = mutableMapOf<String, MutableStateFlow<String>>()
-    val interviewEditViewState: Map<String, StateFlow<String>> = _interviewEditViewState
+    private val _interviewEditViewState =
+        MutableStateFlow(InterviewState(RandomUtils.optInterViewRandomId(), ""))
+    val interviewEditViewState: StateFlow<InterviewState> = _interviewEditViewState
 
-    var offerDetailFormState=FormState()
-    private val _offerFormState= MutableStateFlow(OfferState(RandomUtils.optOfferRandomId(), ""))
-    val offerFormState: StateFlow<OfferState> = _offerFormState
+    var offerDetailFormState = FormState()
+    private val _offerFormState = MutableStateFlow(OfferState(RandomUtils.optOfferRandomId(), ""))
 
+    private val _currentPageOperation = MutableStateFlow(Constants.PAGE_OPERATION_DEFAULT)
+    val currentPageOperation: StateFlow<Int> = _currentPageOperation
 
     companion object {
         const val DIALOG_TYPE_DISMISS = 0
@@ -97,7 +102,7 @@ class MainViewModel : ViewModel() {
             InterViewIntent.FetchData -> fetchData()
             InterViewIntent.FetchDataList -> {
                 fetchData()
-                saveDataToLocal()
+
             }
 
             InterViewIntent.IsLoading -> {
@@ -105,27 +110,61 @@ class MainViewModel : ViewModel() {
             }
 
             is InterViewIntent.NewInterView -> {
-                viewModelScope.launch {
-                    val result =
-                        async(Dispatchers.IO) { interviewRepository.upsertInterview(intent.formState) }.await()
+                _currentPageOperation.value = Constants.PAGE_OPERATION_REVIEWING
 
-                    if (result == intent.formState.itemId) {
-                        _isShowViewDialog.value = DIALOG_TYPE_DISMISS
-                    }
-                }
             }
 
             is InterViewIntent.InterviewDataChanged -> {
-                if (_interviewEditViewState[intent.key] == null) {
-                    _interviewEditViewState[intent.key] = MutableStateFlow(intent.data)
-                } else {
-                    _interviewEditViewState[intent.key]!!.value  = intent.data
+                interviewEditDataChange(intent.key, intent.data)
+            }
+
+            InterViewIntent.Save -> {
+                viewModelScope.launch {
+                    val result =
+                        async(Dispatchers.IO) {
+                            interviewRepository.upsertInterview(
+                                interviewEditViewState.value
+                            )
+                        }.await()
+
+                    if (result == interviewEditViewState.value.itemId) {
+                        _interviewEditViewState.value =
+                            InterviewState(RandomUtils.optInterViewRandomId(), "")
+                        _currentPageOperation.value = Constants.PAGE_OPERATION_COMPLETED
+                    } else {
+                        _currentPageOperation.value = Constants.PAGE_OPERATION_REJECTED
+                    }
                 }
             }
         }
     }
 
-    fun handleOfferIntentForResult(intent: OfferIntent,onResult:(()->Boolean) ?=null){
+    fun interviewEditDataChange(key: String, data: Any) {
+        when (key) {
+            "部门" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(department = data.toString())
+
+            "岗位" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(job = data.toString())
+
+            "城市" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(city = data.toString())
+
+            "公司" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(companyName = data.toString())
+
+            "薪资" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(salary = data.toString().toDouble())
+
+            "薪资单位" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(salaryUnit = data.toString())
+
+            "面试状态" -> _interviewEditViewState.value =
+                _interviewEditViewState.value.copy(interviewStatus = data as? Int ?: 0)
+        }
+    }
+
+    fun handleOfferIntentForResult(intent: OfferIntent, onResult: (() -> Boolean)? = null) {
         when (intent) {
             is OfferIntent.SubmitOfferForm -> {
                 // 数据验证
@@ -215,17 +254,17 @@ class MainViewModel : ViewModel() {
 
     //offer
     fun handleOfferIntent(intent: OfferIntent) {
-        handleOfferIntentForResult(intent,null)
+        handleOfferIntentForResult(intent, null)
     }
 
     private fun fetchData() {
-        _interviewListState.value = _interviewListState.value.copy(isFreshing = true)
+        _interviewListState.value = _interviewListState.value.copy(isRefreshing = true)
 
         viewModelScope.launch(Dispatchers.IO) {
             delay(1000)
             interviewRepository.interviews.collect {
                 _interviewListState.value = _interviewListState.value.copy(
-                    isFreshing = false,
+                    isRefreshing = false,
                     list = it
                 )
             }

@@ -65,7 +65,7 @@ fun InterViewListItem(
 @Composable
 fun HomeInterviewList(state: InterViewStateList, viewModel: MainViewModel) {
     val navi = rememberNavController()
-    if (state.isFreshing) {
+    if (state.isRefreshing) {
         IndeterminateLinearIndicator()
     } else {
         LazyColumn {
@@ -143,7 +143,6 @@ fun interviewPreview() {
         companyName = "一二四",
         department = "三三三",
         job = "散散",
-        interviewStatus = "面试中",
         progress = 1,
         progressNum = 5,
         createTime = "2023-05-01 13:00",

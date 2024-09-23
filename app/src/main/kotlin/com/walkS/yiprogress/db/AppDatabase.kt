@@ -5,12 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.walkS.yiprogress.entry.InterviewEntry
 import com.walkS.yiprogress.state.InterviewState
 import com.walkS.yiprogress.state.OfferState
 import java.util.concurrent.locks.ReentrantLock
 
 
-@Database(entities = [InterviewState::class, OfferState::class], version = 2)
+@Database(entities = [InterviewEntry::class, OfferState::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun interViewDao(): InterViewDao
     abstract fun offerDao(): OfferDao

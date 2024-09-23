@@ -72,12 +72,8 @@ dependencies {
     implementation(libs.androidx.appcompat.resources)
     kapt (libs.androidx.room.compiler)
     implementation(libs.androidx.fragment.ktx)
-
-    implementation (libs.krealmextensions)
-
-    // 对于 Single 和 Flowable 查询：
-    implementation (libs.rxjava)
-    implementation (libs.rxandroid)
+    implementation ("com.alibaba.fastjson2:fastjson2:2.0.53")
+    implementation("io.realm.kotlin:library-base:2.3.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

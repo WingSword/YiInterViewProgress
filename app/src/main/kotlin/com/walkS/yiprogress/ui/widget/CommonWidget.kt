@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -62,6 +63,7 @@ import com.walkS.yiprogress.MainViewModel
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_INTERVIEW
 import com.walkS.yiprogress.MainViewModel.Companion.DIALOG_TYPE_SHOW_ADD_OFFER
 import com.walkS.yiprogress.entry.Profile
+import com.walkS.yiprogress.intent.InterViewIntent
 import com.walkS.yiprogress.intent.MainIntent
 import com.walkS.yiprogress.intent.OfferIntent
 import com.walkS.yiprogress.ui.screen.homescreen.isHomeScreenPage
@@ -134,6 +136,7 @@ fun PartialBottomSheet(navController: NavHostController, vm: MainViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationTopBar(navi: NavController, currentRoute: String?) {
+    val viewModel= viewModel<MainViewModel>()
     CenterAlignedTopAppBar(
         title = { },
         navigationIcon = {
@@ -166,7 +169,6 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?) {
         actions = {
             TopActionButton(isHomeScreenPage(currentRoute)) {
                 val screen = navi.currentBackStackEntry?.destination
-
                 when (screen?.route) {
                     Profile.HOME_OFFER_LIST_PAGE.route -> {
                         navi.navigate(Profile.DETAIL_OFFER.route)
@@ -183,6 +185,7 @@ fun NavigationTopBar(navi: NavController, currentRoute: String?) {
                     }
 
                     Profile.DETAIL_INTERVIEW.route -> {
+
                         viewModel.handleInterViewIntent(InterViewIntent.NewInterView)
                     }
 
